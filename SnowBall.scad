@@ -2,12 +2,14 @@
 // (c) 2013 Laird Popkin
 
 // Randomly generate snowflakes. The basic approach is to draw six
-// radial arms out from the center, then recursively draw arms out from 
+// radial arms out from the center, then recursively draw arms out from
 // the ands of the first arms, and so on. For a random number of
 // layers of recursion. Also, randomly draw hexagons.
 
 // Arrays of parameters. Foo[0] is center, [1] is first layer out, [2] is
 // second layer, etc.
+
+// http://www.thingiverse.com/thing:188481
 
 // For a good time, use seed = rands(0,1000000,1)[0];
 
@@ -196,7 +198,7 @@ module snowflake(c) {
 				rotate([0,0,180]) translate([length[1]/4-clip,0,0]) clip(max-trim);
 				translate([0,0,height[1]/2]) cube([height[1],length[1]/2,height[1]],center=true);
 				}
-			if (c==3) rotate([0,0,180]) 
+			if (c==3) rotate([0,0,180])
 				translate([-length[1]/4-clip-g,0,0]) clip(max+length[1]/2-trim);
 			if (c==4) {
 				translate([0,-30-ring,0]) rotate([0,0,-90]) label(labelString, max+ring+ring);
@@ -228,23 +230,23 @@ module snowflake(c) {
 	} // module
 
 module clip(l) {
-	translate([0,-height[1]/2-clip,0]) cube([l,height[1]+clip+clip,height[1]]);	
+	translate([0,-height[1]/2-clip,0]) cube([l,height[1]+clip+clip,height[1]]);
 	}
 
 module slot(l) {
 	translate([0,-height[1]/2-g,-1]) {
 		translate([0,0,-1/2]) cube([l,height[1]+g,height[1]+3]);
-		translate([0,0,(height[1]+2)/2]) 
-			rotate([a/2,0,0]) translate([0,0,-1-(height[1]+2)/2]) 
+		translate([0,0,(height[1]+2)/2])
+			rotate([a/2,0,0]) translate([0,0,-1-(height[1]+2)/2])
 				cube([l,height[1]+g,height[1]+3]);
-		translate([0,0,(height[1]+2)/2]) 
-			rotate([-a/2,0,0]) translate([0,0,-(height[1]+2)/2]) 
+		translate([0,0,(height[1]+2)/2])
+			rotate([-a/2,0,0]) translate([0,0,-(height[1]+2)/2])
 				cube([l,height[1]+g,height[1]+3]);
 		}
 	}
 
 module arm() {
-	translate ([0,-min(minthickness,width[1])/2,0]) 
+	translate ([0,-min(minthickness,width[1])/2,0])
 		cube([length[1],min(minthickness,width[1]),height[1]]);
 	translate ([length[1],0,0]) {
 		if (hex[1]>.5) drawhex(length[2], height[2], hsolid[2], 3+floor(sides[2]), hthick[2]);
@@ -258,7 +260,7 @@ module arm() {
 	}
 
 module arm2() {
-	translate ([0,-min(minthickness,width[2])/2,0]) 
+	translate ([0,-min(minthickness,width[2])/2,0])
 		cube([length[2],min(minthickness,width[2]),height[2]]);
 	translate ([length[2],0,0]) {
 		if (hex[2]>.5) drawhex(length[3], height[3], hsolid[3], 3+floor(sides[3]), hthick[3]);
@@ -312,7 +314,7 @@ module hexagon(size, height, sides) {
 	else {
 		translate([0,0,-height/2]) cylinder(r=boxWidth,h=height,$fn=sides); // suggested by Micheal@Oz
 		}
-	//for (r = [-60, 0, 60]) rotate([0,0,r]) 
+	//for (r = [-60, 0, 60]) rotate([0,0,r])
 	//	cube([boxWidth, size, height], true);
 	}
 

@@ -1,3 +1,9 @@
+// Replacement band for Fitbit Flex.
+//
+// http://www.thingiverse.com/thing:205148
+//
+// (c) 2013, Laird Popkin.
+
 /* [Settings] */
 
 // Measurement around wrist (mm).
@@ -56,7 +62,7 @@ module flex() {
 		translate([0,0,-zoff]) linear_extrude(scale=0.9,height=len) {
 			square([width-2*r,height],center=true);
 			square([width,height-2*r],center=true);
-			
+
 			translate([-xoff,-yoff,0]) circle(r=r);
 			translate([-xoff,yoff,0]) circle(r=r);
 			translate([xoff,-yoff,0]) circle(r=r);
@@ -78,12 +84,12 @@ module female() {
 		translate([-outerWidth/2,-outerWidth/2-gap,0]) cube([outerWidth,outerWidth,linkHeight]);
 		translate([-outerWidth/8-gap,0,-1]) cube([outerWidth/4+0.8,outerWidth/2,linkHeight+2]);
 		translate([0,0,-1]) cylinder(r=outerWidth/4+gap, h=linkHeight+2);
-		}		
+		}
 	}
 
 module FitBitBand() {
 	//#translate([	outerWidth,0,0]) cube([1,wristLen,1],center=true);
-	
+
 	difference() {
 		union() {
 			// hull around Flex
@@ -114,7 +120,7 @@ module FitBitBand() {
 		// carve out gap for pulling Flex out
 		translate([0,len/2,.2]) cube([width*.75,6,2*(r+thick)], center=true);
 		}
-	
+
 //	translate([hingeXoff,outerLen+1,0]) scale([hingeXscale,1,1]) demo(outerHeight,0.4/hingeXscale);
 //	translate([hingeXoff,-outerLen-1,0]) scale([hingeXscale,1,1]) demo(outerHeight,0.4/hingeXscale);
 //	translate([hingeXoff,1.75*outerLen+1,0]) scale([hingeXscale,1,1]) demo(outerHeight,0.4/hingeXscale);
@@ -140,7 +146,7 @@ difference() {
 //male();
 //female();
 
-/// HINGE 
+/// HINGE
 
 // What diameter or thickness should the hinge have (in 0.01 mm units)?
 //hinge_dia = 500; // [1:5000]

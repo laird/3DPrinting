@@ -1,4 +1,6 @@
-// minion
+// minion http://www.thingiverse.com/thing:206027
+//
+// Code (c) 2013, Laird Popkin. Works with Thingiverse Customizer.
 
 use <MCAD/regular_shapes.scad>;
 use <write/Write.scad>;

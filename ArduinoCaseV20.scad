@@ -1,6 +1,7 @@
 //design and code by emanresu (http://www.thingiverse.com/Ema...
 //generates a simple tray with standoffs for an arduino to sit in
 // Tweaked a bit by Laird Popkin (http://www.thingiverse.com/laird
+// It's become far more than tweaking.
 
 use <write/Write.scad>
 
