@@ -3,6 +3,9 @@
 // Tweaked a bit by Laird Popkin (http://www.thingiverse.com/laird
 // It's become far more than tweaking.
 
+// Code (c) 2013, Laird Popkin (and derived from others, see . Works with Thingiverse Customizer.
+
+
 use <write/Write.scad>
 
 //////////////////
