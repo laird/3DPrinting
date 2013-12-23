@@ -17,7 +17,9 @@ coin6 = 0; // [0:None, 1:US Dollar, 2:US half dollar, 3:US quarter, 4:US dime, 5
 // Scale of text
 scale = 2;
 // Part to display
-part = 1; //[1:Preview, 2:Coin Holder, 3:Plungers, 4:Cover, 5:Plated]
+part = 5; //[1:Preview, 2:Coin Holder, 3:Plungers, 4:Cover, 5:Plated]
+// Chop into coin holder to see how it assembles
+chop = 0; //[0:Whole, 1:Hole]
 
 /* [Cup Holder] */
 
@@ -36,8 +38,6 @@ lip = 2;
 /* [Tweaks] */
 // Clearance, adjust to suit your printer
 clearance = 0.4;
-// Chop into coin holder to see how it assembles
-chop = 0; //[0:Whole, 1:Hole]
 
 /* [Hidden] */
 
@@ -165,12 +165,11 @@ module plated() {
 	translate([-cupHolderWidth-5,0,0]) cover();
 	}
 
-part=5;
 difference() {
 	if (part==1) assembled();
 	if (part==2) coinHolder();
 	if (part==3) rotate([180,0,0]) translate([0,0,-cupHolderDepth+cupHolderFloor+clearance*2]) coinPlungers(wall);
 	if (part==4) cover();
 	if (part==5) plated();
-	if (chop) cube([200,200,200]);
+	if (chop) translate([0,0,-1]) cube([200,200,200]);
 	}

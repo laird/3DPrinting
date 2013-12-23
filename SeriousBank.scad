@@ -21,8 +21,10 @@ slotL = 45;
 slotW = 5;
 // Thickness of lip around money slot.
 slotLip = 2;
+// Rib Spacing. 0 means one rib per side.
+ribSpacing = 3.5;
 // Turn on to see into bank. Turn off to print.
-slice = 0; //[0:Off, 1:On]
+slice = 0; //[0:Whole, 1:Hole]
 
 // Shape of bank
 module bankShape(s) {
@@ -61,10 +63,14 @@ module bank() {
 		bankShape(l);	// so ribs stay inside
 		difference() {
 			union() {
-				for (a=[0:60:359]) rotate([0,0,a]) translate([0,-0.5,-l/2]) cube([l*0.81,t,l*1.5]);
+				for (a=[0:60:359]) rotate([0,0,a]) {
+					for (offset = [-ribSpacing:ribSpacing:ribSpacing]) {
+						translate([0,offset-t/2,-l/2]) cube([l*0.81,t,l*1.5]);
+						}
+					}
 				rotate([0,55,0]) rotate([0,0,0]) 
 					translate([0,0,l/2-i/2]) 
-						cube([slotL+2*slotLip,slotW+2*slotLip,i], center=true);
+						cube([slotL+2*slotLip+.1,slotW+2*slotLip+.1,i], center=true);
 				}
 			bankShape(l-i);
 			rotate([0,55,0]) rotate([0,0,0]) 
