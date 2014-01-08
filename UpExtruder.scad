@@ -3,10 +3,12 @@
 /* todo:
 
 - Add bumps/holes so two halves of parts mate together
-- make hot end toghter
-- make spring shorter
-- move spring out slightly
-- move bearing away 0.5mm
+- make body more airtight to force more air to vent
+- add second vent to fan
+- make hot end tighter (done)
+- make spring shorter (done)
+- move spring out slightly (done, added holder)
+- move bearing away 0.5mm (done)
 
 */
 
@@ -85,6 +87,7 @@ module screws () {
 	}
 }
 
+// hole for hot end in body
 module hotend() {
 	hh=30; // how far to clear outside
 	hin=12; // how far to clear inside
@@ -95,8 +98,8 @@ module hotend() {
 
 	translate([hx,hy+hin,hz]) rotate([90,0,0]) {
 		difference() {
-			cylinder(r=hr+clearance, h=hh+hin);
-			translate([0,0,gy+hin-hy]) cylinder(r=hr+1,h=gh-clearance*2,center=true);
+			cylinder(r=hr+clearance/2, h=hh+hin);
+			translate([0,0,gy+hin-hy]) cylinder(r=hr+1,h=gh-clearance/2,center=true);
 		}
 		cylinder(r=gr, h=hh);
 	}
@@ -122,7 +125,8 @@ module vent() {
 // hole in body to fit vent
 module ventHole(){
 	translate([sx1+vr+vw, wall, bz/2])
-	rotate([90,0,0]) rotate([0,0,360/16]) cylinder($fn=8, r=vr+clearance, h=20, center=true);
+	rotate([90,0,0]) rotate([0,0,360/16])
+		cylinder($fn=8, r=vr+clearance, h=25, center=true);
 }
 
 module ventPlate(){
@@ -223,12 +227,12 @@ module spring() {
 
 module springHole() {
 	translate([4, by/2+wall,bz/2]) rotate([-90,0,0])
-		cylinder(r=3, h=20+2, center = true);
+		cylinder(r=3, h=20, center = true);
 	}
 
 module springHolder() {
 	translate([4, by/2+wall,bz/2]) rotate([-90,0,0])
-		cylinder(r=3+1, h=20, center = true);
+		cylinder(r=3+1, h=20+2, center = true);
 	}
 
 module holes() {
