@@ -1,7 +1,17 @@
 // TwoUp Extruder model
 
+/* todo:
+
+- Add bumps/holes so two halves of parts mate together
+- make hot end toghter
+- make spring shorter
+- move spring out slightly
+- move bearing away 0.5mm
+
+*/
+
 $fn=32;
-part = 0 ; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back, 5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated]
+part = 11 ; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back, 5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated]
 
 // box x
 bx=57;
@@ -40,8 +50,27 @@ bid = 9.525;
 bod = 15.875;
 // Tension bearing width
 bw = 3.967;
+// Offset (to leave room for filament)
+boff = 0.5;
+
 bir=bid/2;
 bor=bod/2;
+
+// Vent length
+vh = 55;
+// Vent into body
+vin = 10;
+// Radius
+vr = 5;
+// Wall thickness
+vw = 1;
+// Opening at bottom
+vopenw = 7;
+vopenh = 5;
+
+module fan() {
+	translate([bx+clearance, 0, 40]) rotate([0,90,0]) cube([40,40,10]);
+	}
 
 // screw holes, enlarged so screw threads slide through
 module screws () {
@@ -73,6 +102,33 @@ module hotend() {
 	}
 }
 
+module vent() {
+	translate([sx1+vr+vw, vin, bz/2]) rotate([90,0,0]) difference() {
+		rotate([0,0,360/16]) {
+		difference() {
+			union() {
+				cylinder($fn=8, r=vr, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
+				translate([0,0,vin]) cylinder($fn=8, r=vr+1, h=1); // 60 mm to reach extruder, 10mm fit into extruder body
+				}
+			translate([0,0,-1]) cylinder($fn=8, r=vr-vw, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
+			rotate([0,0,-360/16]) translate([vr,0,vh+vin-vopenh/2-1]) cube([2*vr,vopenw, vopenh], center = true);
+			translate([0,vr,vin]) cube([2*vr,2,1], center=true);
+			}
+		}
+		translate([-(vr+.1),0,vin]) cube([1,2*vr,3],center=true);
+		}
+	}
+
+// hole in body to fit vent
+module ventHole(){
+	translate([sx1+vr+vw, wall, bz/2])
+	rotate([90,0,0]) rotate([0,0,360/16]) cylinder($fn=8, r=vr+clearance, h=20, center=true);
+}
+
+module ventPlate(){
+	translate([bx+30,by+vin+13,0]) translate([0,0,-bz/2+vr+.476]) rotate([0,-90,0]) vent();
+	}
+
 module motorHole() {
 	mz = bz+1;
 	mh = bz+2;
@@ -94,7 +150,7 @@ module motor() {
 
 module bearing() {
 	echo("bearing", hx, bor, my, hz, bw, bir);
-	translate([hx+bor, my, hz])
+	translate([hx+bor+boff, my, hz])
 	difference() {
 		cylinder(r=bor,h=bw, center=true);
 		cylinder(r=bir, h=bw+1, center=true);
@@ -103,7 +159,7 @@ module bearing() {
 
 module bearingHole() {
 	echo("bearing hole ", hx, bor, my, hz, bw, bir, clearance);
-	translate([hx+bor, my, hz])
+	translate([hx+bor+boff, my, hz])
 		difference() {
 			cylinder(r=bor+2*clearance,h=bw+4*clearance, center=true);
 			cylinder(r=bir-clearance, h=bw+4*clearance+1, center=true);
@@ -111,7 +167,7 @@ module bearingHole() {
 	}
 
 module bearingHub() {
-	translate([hx+bor, my, hz]) {
+	translate([hx+bor+boff, my, hz]) {
 		cylinder(r=bir-clearance, h=midW-2*clearance, center=true);
 		translate([0,0,bw/2+(bor-bir)/2]) cylinder(r1=(bir+bor)/2, r2=bir-clearance, h=(bor-bir), center=true);
 		translate([0,0,-(bw/2+(bor-bir)/2)]) cylinder(r2=(bir+bor)/2, r1=bir-clearance, h=(bor-bir), center=true);
@@ -160,17 +216,32 @@ module box() {
 	cube([bx,by,bz]);
 	}
 
+module spring() {
+	translate([4, by/2+wall,bz/2]) rotate([-90,0,0])
+		cylinder(r=3-clearance, h=20-2*clearance, center = true);
+	}
+
 module springHole() {
-	translate([4, by/2+wall,bz/2]) rotate([-90,0,0]) cylinder(r=3, h=20, center = true);
+	translate([4, by/2+wall,bz/2]) rotate([-90,0,0])
+		cylinder(r=3, h=20+2, center = true);
+	}
+
+module springHolder() {
+	translate([4, by/2+wall,bz/2]) rotate([-90,0,0])
+		cylinder(r=3+1, h=20, center = true);
 	}
 
 module holes() {
 	screws();
 	hotend();
-	motorHole();
+	difference() {
+		motorHole();
+		springHolder();
+		}
 	filamentHole();
 	leverHole();
 	springHole();
+	ventHole();
 	}
 
 module filament () {
@@ -186,8 +257,11 @@ module assembled(tilt=0) {
 	color("grey") motor();
 	color("red") filament();
 	color("grey") screws();
-	if (tilt==1) color("blue") rotLever();
-	if (tilt==0) color("blue") lever();
+	color("grey") spring();
+	%fan();
+	if (tilt==1) rotLever();
+	if (tilt==0) lever();
+	vent();
 	}
 
 module extruderBody() {
@@ -241,27 +315,21 @@ module Lplate() {
 	translate([0,by+5,0]) Lback();
 	}
 
-if (part==0) {
-	assembled(0); // no tilt
+module allPlated() {
+	Bplate();
+	translate([bx+10,0,0]) Lplate();
+	ventPlate();
 	}
 
-if (part==1) {
-	assembled(1); // tilt
-	}
-
+if (part==0) assembled(0); // no tilt
+if (part==1) assembled(1); // tilt
 if (part==2) extruderBody();
-
 if (part==3) lever();
-
 if (part==4) Bback();
-
 if (part==5) Bfront();
-
 if (part==6) Bplate();
-
 if (part==7) Lback();
-
 if (part==8) Lfront();
-
 if (part==9) Lplate();
-
+if (part==10) ventPlate();
+if (part==11) allPlated();
