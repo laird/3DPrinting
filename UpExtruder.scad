@@ -13,7 +13,7 @@
 */
 
 $fn=32;
-part = 11; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back, 5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated, 10:Vent Plated, 11:Everything Plated]
+part = 0; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back,5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated, 10:Vent Plated, 11:Fan vent, 12:Everything Plated]
 
 // box x
 bx=57;
@@ -31,6 +31,8 @@ hy=7;
 mx = 21;
 // motor y
 my = 26.72;
+// motor size (approx)
+ms = by-5;
 // Wall thickness
 wall = 5;
 // Clearance
@@ -70,8 +72,23 @@ vw = 1;
 vopenw = 7;
 vopenh = 5;
 
+// fan size
+fs = 40;
+
 module fan() {
-	translate([bx+clearance, 0, 40]) rotate([0,90,0]) cube([40,40,10]);
+	translate([bx+clearance, 5, fs]) rotate([0,90,0]) cube([fs,fs,10]);
+	}
+
+module fanScrews() {
+	fso = 31/2;
+
+	translate([bx+clearance-5, 5, fs]) rotate([0,90,0]) translate([fs/2,fs/2,0]) {
+		for (x=[-fso,fso]) {
+			for (y=[-fso,fso]) {
+				translate([x,y,0]) cylinder(r=1.5,h=15);
+				}
+			}
+		}
 	}
 
 // screw holes, enlarged so screw threads slide through
@@ -87,9 +104,27 @@ module screws () {
 	}
 }
 
+module fanVent() {
+	echo("fan vent pos ", mx,0,bz+clearance);
+	echo("fan vent size ", bx-mx,fs,fs-bz-clearance);
+	difference() {
+		translate([ms+clearance,0,bz+clearance])
+		difference() {
+			cube([bx-ms-2*clearance,fs+5,fs-bz-clearance]);
+			translate([1,1+11,1]) cube([bx-2*mx-2*clearance,fs-2-12,fs-bz-clearance-2]);
+			}
+		ventHole2();
+		fanScrews();
+		}
+	}
+
+module fanVentPlated() {
+	rotate([0,-90,0]) translate([-(ms+clearance),0,-(bz+clearance)-(fs-bz-clearance)]) fanVent();
+}
+
 // hole for hot end in body
 module hotend() {
-	hh=30; // how far to clear outside
+	hh=40; // how far to clear outside
 	hin=12; // how far to clear inside
 	gr=(16.5-2*1.25)/2; // groove radius
 	gy = 7; // y position of groove center
@@ -105,21 +140,32 @@ module hotend() {
 	}
 }
 
+module vent1() {
+	translate([sx1+vr+vw, vin, bz/2]) vent();
+	}
+
 module vent() {
-	translate([sx1+vr+vw, vin, bz/2]) rotate([90,0,0]) difference() {
+	vLen = 2*vr;
+	rotate([90,0,0]) difference() {
 		rotate([0,0,360/16]) {
 		difference() {
 			union() {
 				cylinder($fn=8, r=vr, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
 				translate([0,0,vin]) cylinder($fn=8, r=vr+1, h=1); // 60 mm to reach extruder, 10mm fit into extruder body
+				rotate([0,0,-360/16]) translate([vr,0,vh+vin-vopenh/2-1])
+					rotate([0,-30,0]) cube([vLen,vopenw+2, vopenh+2], center = true);
 				}
 			translate([0,0,-1]) cylinder($fn=8, r=vr-vw, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
-			rotate([0,0,-360/16]) translate([vr,0,vh+vin-vopenh/2-1]) cube([2*vr,vopenw, vopenh], center = true);
-			//translate([0,vr,vin]) cube([2*vr,2,1], center=true);
+			rotate([0,0,-360/16]) translate([vr,0,vh+vin-vopenh/2-1])
+				rotate([0,-30,0]) cube([vLen+1,vopenw, vopenh], center = true);
 			}
 		}
 		translate([-(vr+.1),0,vin]) cube([1,2*vr,3],center=true);
 		}
+	}
+
+module vent2() {
+	translate([(2*mx+bx)/2, vin, bz+(fs-bz)/2]) rotate([0,360*3/8,0]) vent();
 	}
 
 // hole in body to fit vent
@@ -129,8 +175,16 @@ module ventHole(){
 		cylinder($fn=8, r=vr+clearance, h=25, center=true);
 }
 
+// hole in fan vent for vent
+module ventHole2(){
+	echo("vent 2 ",bx-wall-vr, wall, bz+(fs-bz)/2);
+	translate([(2*mx+bx)/2, wall, bz+(fs-bz)/2])
+	rotate([90,0,0]) rotate([0,0,360/16])
+		cylinder($fn=8, r=vr+clearance, h=25, center=true);
+}
+
 module ventPlate(){
-	translate([bx+30,by+vin+13,0]) translate([0,0,-bz/2+vr+.476]) rotate([0,-90,0]) vent();
+	translate([bx+30,by+vin+13,0]) translate([0,0,-bz/2+vr+.476]) rotate([0,-90,0]) vent1();
 	}
 
 module motorHole() {
@@ -146,10 +200,14 @@ module motor() {
 	mz = bz+1;
 	mh = bz+2;
 
-	translate([mx,my,mz]) rotate([180,0,0]) {
-		//%translate([0,0,1]) cylinder(r=15, h=2);
-		%translate([0,0,1]) cylinder(r=6, h=bz-5);
+	translate([mx,my,mz]) {
+		rotate([180,0,0]) {
+			%translate([0,0,1]) cylinder(r=15, h=2);
+			%translate([0,0,1]) cylinder(r=6, h=bz-5);
+			}
+
 		}
+	translate([0,by-ms,bz+clearance]) cube([ms,ms,ms]);
 	}
 
 module bearing() {
@@ -207,8 +265,8 @@ module rotLever() {
 // hole into which lever fits
 module leverHole() {
 	echo("lever hole ", hx, bor, my, hz, bx, by, midW);
-	translate([sx2, sy2, hz])
-		cube([bx-15,by+5,midW], center=true);
+	translate([mx, sy1+0.5, wall+clearance])
+		cube([bx-15,(by+5)/2,midW]);
 	translate([-1,by-2*wall-clearance,wall+clearance])
 		cube([bx*.7+clearance+2, 2*wall+2*clearance, midW]);
 	translate([sx2, sy2, 0]) rotate([0,0,la]) translate([-sx2, -sy2, 0])
@@ -237,6 +295,7 @@ module springHolder() {
 
 module holes() {
 	screws();
+	fanScrews();
 	hotend();
 	difference() {
 		motorHole();
@@ -246,6 +305,7 @@ module holes() {
 	leverHole();
 	springHole();
 	ventHole();
+	ventHole2();
 	}
 
 module filament () {
@@ -257,7 +317,11 @@ module filamentHole() {
 	}
 
 module assembled(tilt=0) {
-	extruderBody();
+	Bback();
+	BfrontAssembled();
+	// Lback();
+	// Lfront();
+	//extruderBody();
 	color("grey") motor();
 	color("red") filament();
 	color("grey") screws();
@@ -265,7 +329,10 @@ module assembled(tilt=0) {
 	%fan();
 	if (tilt==1) rotLever();
 	if (tilt==0) lever();
-	vent();
+	vent1();
+	vent2();
+	fanVent();
+	color("black") hotend();
 	}
 
 module extruderBody() {
@@ -274,7 +341,6 @@ module extruderBody() {
 		holes();
 		}
 	}
-
 
 module backShape() {
 	splitZ = hz;
@@ -289,7 +355,11 @@ module Bback() {
 	}
 
 module Bfront() {
-	translate([0,by,bz]) rotate([180,0,0]) difference() {
+	translate([0,by,bz]) rotate([180,0,0]) BfrontAssembled();
+	}
+
+module BfrontAssembled() {
+	difference() {
 		extruderBody();
 		backShape();
 		}
@@ -321,8 +391,10 @@ module Lplate() {
 
 module allPlated() {
 	Bplate();
-	translate([bx+10,0,0]) Lplate();
-	ventPlate();
+	translate([bx+5,0,0]) Lplate();
+	translate([-5,0,0]) ventPlate();
+	translate([vr*3-5,0,0]) ventPlate();
+	translate([bx+vr*11-5,by/2+4,0]) fanVentPlated();
 	}
 
 if (part==0) assembled(0); // no tilt
@@ -336,4 +408,5 @@ if (part==7) Lback();
 if (part==8) Lfront();
 if (part==9) Lplate();
 if (part==10) ventPlate();
-if (part==11) allPlated();
+if (part==11) fanVentPlated();
+if (part==12) allPlated();
