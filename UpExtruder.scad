@@ -13,7 +13,7 @@
 */
 
 $fn=32;
-part = 11 ; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back, 5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated]
+part = 11; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back, 5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated, 10:Vent Plated, 11:Everything Plated]
 
 // box x
 bx=57;
@@ -115,7 +115,7 @@ module vent() {
 				}
 			translate([0,0,-1]) cylinder($fn=8, r=vr-vw, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
 			rotate([0,0,-360/16]) translate([vr,0,vh+vin-vopenh/2-1]) cube([2*vr,vopenw, vopenh], center = true);
-			translate([0,vr,vin]) cube([2*vr,2,1], center=true);
+			//translate([0,vr,vin]) cube([2*vr,2,1], center=true);
 			}
 		}
 		translate([-(vr+.1),0,vin]) cube([1,2*vr,3],center=true);
