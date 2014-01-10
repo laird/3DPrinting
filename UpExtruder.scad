@@ -72,7 +72,7 @@ va1 = -5;
 // Radius
 vr = 6;
 // Wall thickness
-vw = 1;
+vw = 2;
 // Opening at bottom
 vopenw = 7;
 vopenh = 5;
@@ -87,7 +87,7 @@ module fan() {
 	}
 
 module fanScrews() {
-	fso = 31/2;
+	fso = 32/2;
 
 	translate([bx+clearance-5, 5, fs]) rotate([0,90,0]) translate([fs/2,fs/2,0]) {
 		for (x=[-fso,fso]) {
@@ -142,7 +142,7 @@ module hotend() {
 
 	translate([hx,hy+hin,hz]) rotate([90,0,0]) {
 		difference() {
-			cylinder(r=hr+clearance/2, h=hh+hin);
+			cylinder(r=hr, h=hh+hin);
 			translate([0,0,gy+hin-hy]) cylinder(r=hr+1,h=gh-clearance/2,center=true);
 		}
 		cylinder(r=gr, h=hh);
@@ -194,8 +194,8 @@ module vent2() {
 
 // hole in body to fit vent
 module ventHole(){
-	rotate([0,0,va1]) translate([1+vr, vin, bz/2])rotate([90,0,0]) rotate([0,0,360/16]) {
-		cylinder($fn=8, r=vr+clearance/2, h=16, center=true);
+	rotate([0,0,va1]) translate([1+vr, vin, bz/2]) rotate([90,0,0]) rotate([0,0,360/16]) {
+		cylinder($fn=8, r=vr+clearance/2, h=22, center=true);
 		translate([vhr/2,0,-vhr/2]) sphere(vhr);
 	}
 }
@@ -374,12 +374,20 @@ module extruderBody() {
 
 module backShape() {
 	splitZ = hz;
-	translate([-1,-1,-1]) cube([bx+2,by+2,splitZ+1]);
+	translate([-bx/2,-1,-1]) cube([bx*2,by+2,splitZ+1]);
 	for (x=[sx1,sx2]) {
 		for (y=[sy1,sy2]) {
-			translate([x,y,splitZ]) cylinder(r=3,h=2, center=true);
+			//translate([x,y,splitZ]) cylinder(r=3,h=2, center=true);
 			}
 		}
+	translate([(sx1+sx2)/2,sy2,hz]) rotate([0,90,0])
+		cylinder(r=1.5, h=1.5*bx, $fn=8, center=true);
+	translate([(sx1+sx2)/2,sy1/2,hz]) rotate([0,90,0])
+		cylinder(r=1.5, h=1.5*bx, $fn=8, center=true);
+	translate([sx2,sy2,hz]) rotate([0,90,90])
+		cylinder(r=1.5, h=2*by, $fn=8, center=true);
+	translate([bx-wall,sy2,hz]) rotate([0,90,90])
+		cylinder(r=1.5, h=2*by, $fn=8, center=true);
 	}
 
 module Bback() {
