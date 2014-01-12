@@ -13,30 +13,50 @@
 */
 
 $fn=32;
-part = 12; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back,5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated, 10:Vent Plated, 11:Fan vent, 12:Everything Plated]
+part = 0; //[0:Preview Assembled, 1:Preview lever pressed, 4:body back,5:body front, 6:Body plated, 7:Lever back, 8:Lever front, 9:Lever plated, 10:Vent Plated, 11:Fan vent, 12:Everything Plated]
 
+/* [Spring] */
+
+// Spring hole height (mm)
+springH = 18;
+// Spring hole radius (mm)
+springR = 3;
+
+/* [General] */
+
+// lever length
+ll=20;
+// Lever back angle (to go around screw and meet bearing hub)
+la = 10;
 // box x
 bx=57;
 // box y
 by=47.72;
 // box z
 bz=30.72;
+// Wall thickness
+wall = 5;
+// Clearance
+clearance = 0.4;
+
+/* [Hot End] */
+
 // hot end Z
 hz=15.36-2;
+hz=bz/2;
 // Hot end X
 hx = 27;
 // Hot end y
 hy=7;
+
+/* [Motor] */
+
 // motor X
 mx = 21;
 // motor y
 my = 26.72;
 // motor size (approx)
 ms = by-5;
-// Wall thickness
-wall = 5;
-// Clearance
-clearance = 0.4;
 // middle width
 midW = bz-2*wall-2*clearance;
 // Screws X Y position
@@ -45,11 +65,8 @@ sx2 = 37.5;
 sy1 = 11.22;
 sy2 = 42.22;
 sr = 1.5; //M3 screws' radius
-// Lever angle
-la = 10;
-// lever length
-ll=20;
 
+/* [Bearing] */
 
 // Tension bearing inner diameter
 bid = 9.525;
@@ -63,18 +80,21 @@ boff = 0.5;
 bir=bid/2;
 bor=bod/2;
 
+/* [Vents] */
+
 // Vent length
 vh = 55;
 // Vent into body
 vin = 10;
 // vent1 angle
 va1 = -5;
-// Radius
+// Vent Radius
 vr = 6;
 // Wall thickness
 vw = 2;
-// Opening at bottom
+// Opening at bottom, width
 vopenw = 7;
+// Height
 vopenh = 5;
 // vent sphere for clearance
 vhr = midW*.4;
@@ -92,7 +112,7 @@ module fanScrews() {
 	translate([bx+clearance-5, 5, fs]) rotate([0,90,0]) translate([fs/2,fs/2,0]) {
 		for (x=[-fso,fso]) {
 			for (y=[-fso,fso]) {
-				translate([x,y,0]) cylinder(r=1.5,h=15);
+				translate([x,y,-7]) cylinder(r=sr,h=15+7);
 				}
 			}
 		}
@@ -102,7 +122,7 @@ module fanScrews() {
 module screws () {
 	//echo("screw x ",sx2-sx1);
 	// echo("screw y ",sy2-sy1);
-	h=bz+2;
+	h=bz+2+2;
 	translate([0,0,-1]) {
 	translate([sx1,sy1,0]) cylinder(r=sr+2*clearance, h=h);
 	translate([sx2,sy1,0]) cylinder(r=sr+2*clearance, h=h);
@@ -112,21 +132,27 @@ module screws () {
 }
 
 module fanVent() {
-	echo("fan vent pos ", mx,0,bz+clearance);
-	echo("fan vent size ", bx-mx,fs,fs-bz-clearance);
 	difference() {
 		translate([ms+clearance,0,bz+clearance])
 		difference() {
-			cube([bx-ms-2*clearance,fs+5,fs-bz-clearance+4+clearance]);
-			translate([1,1+11,1]) cube([bx-2*mx-2*clearance,fs-2-12,fs-bz-clearance-2]);
+			union() {
+				cube([bx-ms-2*clearance,by,fs-bz-clearance+4+clearance]);
+				translate([-bx+bx-ms-2*clearance,0,0]) cube([bx,by,1]);
+				}
+			translate([1,1+11,-1])
+				cube([bx-2*mx-2*clearance,fs-2-12,2+fs-bz-clearance-2]);
+			translate([-(ms+clearance),0,-(bz+clearance)]) screws();
 			}
 		ventHole2();
 		fanScrews();
 		}
+	vent2();
+	translate([ms+clearance,0,bz+clearance]) translate([-.73+bx-2*mx-2*clearance-1,1+11,2+fs-bz-clearance-3])
+		cube([1,fs-2-12,vr*.7]);
 	}
 
 module fanVentPlated() {
-	rotate([0,-90,0])
+	rotate([0,180,0])
 		translate([-(ms+clearance),0,-(bz+clearance)-(fs-bz-clearance)])
 			fanVent();
 }
@@ -178,7 +204,7 @@ module vent() {
 					rotate([0,-30,0]) cube([vLen+1,vopenw, vopenh], center = true);
 				}
 			}
-			translate([-(vr+.1),0,vin]) cube([1,2*vr,3],center=true);
+			translate([-(vr+0.04),0,vin]) cube([1,2*vr,3],center=true);
 			}
 		//#hotend();
 		}
@@ -186,8 +212,9 @@ module vent() {
 
 module vent2() {
 	difference() {
-		translate([(2*mx+bx)/2, vin, bz+(fs-bz)/2+2]) rotate([0,360*3/8,0])
-			vent();
+		translate([(2*mx+bx)/2, vin/2, bz+(fs-bz)/2+2+1.5])
+			rotate([0,0,-20]) rotate([0,360*2/8,0])
+				vent();
 		hotend();
 		}
 	}
@@ -195,7 +222,7 @@ module vent2() {
 // hole in body to fit vent
 module ventHole(){
 	rotate([0,0,va1]) translate([1+vr, vin, bz/2]) rotate([90,0,0]) rotate([0,0,360/16]) {
-		cylinder($fn=8, r=vr+clearance/2, h=22, center=true);
+		cylinder($fn=8, r=vr+clearance/2, h=20, center=true);
 		translate([vhr/2,0,-vhr/2]) sphere(vhr);
 	}
 }
@@ -203,13 +230,13 @@ module ventHole(){
 // hole in fan vent for vent
 module ventHole2(){
 	echo("vent 2 ",(2*mx+bx)/2, wall, bz+(fs-bz)/2+3);
-	translate([(2*mx+bx)/2+clearance, wall, bz+(fs-bz)/2+2+clearance])
-	rotate([90,0,0]) rotate([0,0,360/16])
-		cylinder($fn=8, r=vr+clearance/2, h=fs+20, center=true);
+	translate([(2*mx+bx)/2+clearance, vin/2+1.1, bz+(fs-bz)/2+2+clearance+1.1])
+	rotate([90,0,0]) rotate([0,-20,0]) rotate([0,0,360/16])
+		cylinder($fn=8, r=vr-vw, h=fs+20, center=true);
 }
 
 module ventPlate(){
-	translate([bx+30,by+vin+13,1.6])
+	translate([bx+30,by+vin+13,1.54])
 		translate([0,0,-bz/2+2*vr+.36]) rotate([0,-90,0])
 			rotate([0,0,-va1]) vent1();
 	}
@@ -227,14 +254,14 @@ module motor() {
 	mz = bz+1;
 	mh = bz+2;
 
-	translate([mx,my,mz]) {
-		rotate([180,0,0]) {
-			%translate([0,0,1]) cylinder(r=15, h=2);
-			%translate([0,0,1]) cylinder(r=6, h=bz-5);
-			}
+	translate([mx,my,0]) {
+		//rotate([180,0,0]) {
+			translate([0,0,1]) cylinder(r=15, h=2);
+			translate([0,0,1]) cylinder(r=6, h=bz-5);
+			//}
 
 		}
-	translate([0,by-ms,bz+clearance]) cube([ms,ms,ms]);
+	translate([0,by-ms,-ms]) cube([ms,ms,ms]);
 	}
 
 module bearing() {
@@ -256,28 +283,51 @@ module bearingHole() {
 	}
 
 module bearingHub() {
+	hubGuide = 3.8;
+	hgOffset = 2.5;
 	translate([hx+bor+boff, my, bz/2])
 		cylinder(r=bir-clearance, h=midW-2*clearance, center=true);
-	translate([hx+bor+boff, my, hz]) {
-		translate([0,0,bw/2+(bor-bir)/2]) cylinder(r1=(bir+bor)/2, r2=bir-clearance, h=(bor-bir), center=true);
-		translate([0,0,-(bw/2+(bor-bir)/2)]) cylinder(r2=(bir+bor)/2, r1=bir-clearance, h=(bor-bir), center=true);
+	difference() {
+		union() {
+			translate([hx+bor+boff, my, hz]) {
+				translate([0,0,bw/2+(bor-bir)/2]) {
+					cylinder(r1=(bir+bor)/2, r2=bir-clearance, h=(bor-bir), center=true);
+					translate([0,0,hgOffset])
+						cylinder(r1=(bir+bor)/2+hubGuide, r2=bir-clearance, h=(bor-bir)+hubGuide, center=true);
+					}
+				translate([0,0,-(bw/2+(bor-bir)/2)]) {
+					cylinder(r2=(bir+bor)/2, r1=bir-clearance, h=(bor-bir), center=true);
+					translate([0,0,-hgOffset])
+						cylinder(r2=(bir+bor)/2+hubGuide, r1=bir-clearance, h=(bor-bir)+hubGuide, center=true);
+					}
+				}
+			}
+		motor();
 		}
 	}
 
 module lever(showBearing=0) {
+	swing=5;
+
 	difference() {
 		union() {
+			// slanted/vertical pivot
 			translate([hx+bor+2.5, my+by/4, bz/2])
 				rotate([0,0,-13]) cube([bor,by/2,midW-2*clearance], center=true);
-			translate([-ll,by-2*wall,wall+2*clearance]) cube([bx*.7+ll, 2*wall, midW-2*clearance]);
+			//top/lever arm
+			translate([-ll,by-2*wall,wall+2*clearance])
+				cube([bx*.7+ll, 3*wall, midW-2*clearance]);
+			// stick down to cover open area
 			translate([wall*2+2*clearance,by-2.5*wall,bz/2])
-				cube([wall,2*wall,midW],center=true);
+				cube([wall,2*wall,midW-2*clearance],center=true);
 			}
-		translate([-ll,by-.1,wall+clearance-1]) cube([bx+ll, 2*wall, midW+2]);
+		translate([-ll,by-.1+wall,wall+clearance-1])
+			cube([bx+ll, 2*wall, midW+2]);
 		bearingHole();
-		translate([sx1,sy2,-1]) cylinder(r=sr+clearance, h=bz+2);
-		translate([sx1-sr-clearance,sy2,-1])
-			cube([2*(sr+clearance),by-sy2+1,bz+2]);
+		translate([sx1,sy2,-1]) cylinder(r=sr+2*clearance, h=bz+2);
+		translate([sx1,sy2+swing,-1]) cylinder(r=sr+2*clearance, h=bz+2);
+		translate([sx1-sr-2*clearance,sy2,-1])
+			cube([2*(sr+2*clearance),swing,bz+2]);
 		filamentHole();
 		screws();
 		springHole();
@@ -309,18 +359,18 @@ module box() {
 	}
 
 module spring() {
-	translate([4, by/2+wall+2,bz/2]) rotate([-90,0,0])
-		cylinder(r=3-clearance, h=18-2*clearance, center = true);
+	translate([4, by/2+wall+.5,bz/2]) rotate([-90,0,0])
+		cylinder(r=springR-clearance, h=18-2*clearance, center = true);
 	}
 
 module springHole() {
-	translate([4, by/2+wall+2,bz/2]) rotate([-90,0,0])
-		cylinder(r=3, h=18, center = true);
+	translate([4, by/2+wall+.5,bz/2]) rotate([-90,0,0])
+		cylinder(r=springR, h=springH, center = true);
 	}
 
 module springHolder() {
 	translate([4, by/2+wall,bz/2]) rotate([-90,0,0])
-		cylinder(r=3+1, h=20+2, center = true);
+		cylinder(r=3+1, h=springH+2+2, center = true);
 	}
 
 module holes() {
@@ -348,19 +398,20 @@ module filamentHole() {
 
 module assembled(tilt=0) {
 	//color("yellow") translate([0,0,clearance]) LBackHanging();
-	color("orange") LFrontHanging();
-	color("green") BFrontHanging();
+	//color("orange") LFrontHanging();
+	//color("green") BFrontHanging();
 	//translate([0,0,clearance]) Bback();
-	//extruderBody();
-	color("grey") motor();
+	extruderBody();
+	%motor();
 	color("red") filament();
 	color("grey") screws();
 	color("grey") spring();
-	%fan();
-	//if (tilt==1) rotLever(1);
-	//if (tilt==0) lever(1);
+	//fan();
+	if (tilt==1) rotLever(1);
+	if (tilt==0) lever(1);
 	color("blue") vent1();
-	color("blue") vent2();
+	//http://www.fabric8r.com/forums/showthread.php?1323-Replacement-extruder/page10
+	//color("blue") vent2(); // merged into fanVent
 	fanVent();
 	color("black") hotend();
 	}
@@ -384,8 +435,8 @@ module backShape() {
 		cylinder(r=1.5, h=1.5*bx, $fn=8, center=true);
 	translate([(sx1+sx2)/2,sy1/2,hz]) rotate([0,90,0])
 		cylinder(r=1.5, h=1.5*bx, $fn=8, center=true);
-	translate([sx2,sy2,hz]) rotate([0,90,90])
-		cylinder(r=1.5, h=2*by, $fn=8, center=true);
+	translate([sx2,by/2,hz]) rotate([0,90,90])
+		cylinder(r=1.5, h=by+2, $fn=8, center=true);
 	translate([bx-wall,sy2,hz]) rotate([0,90,90])
 		cylinder(r=1.5, h=2*by, $fn=8, center=true);
 	}
@@ -444,9 +495,8 @@ module Lplate() {
 module allPlated() {
 	Bplate();
 	translate([bx+30,0,0]) Lplate();
-	translate([-5,5,0]) ventPlate();
-	translate([vr*3-5,5,0]) ventPlate();
-	translate([bx+vr*10-17,by/2+4,0]) fanVentPlated();
+	translate([145,-10,0]) rotate([0,0,90]) ventPlate();
+	translate([bx+vr*12-17,by-3,vr-1.6]) rotate([0,0,90]) fanVentPlated();
 	}
 
 if (part==0) assembled(0); // no tilt
