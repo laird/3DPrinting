@@ -10,7 +10,7 @@
 //
 // BottleCap that closes a bottle, in case you lose the cap that came with the bottle.
 
-part="cap"; // "threads" for the part to print, "neck" for the part to subtract from your part
+part="angle"; // "threads" for the part to print, "neck" for the part to subtract from your part
 clearance=0.4; // tune to get the right 'fit' for your printer
 
 $fn=64;
