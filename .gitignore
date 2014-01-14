@@ -1,2 +1,8 @@
 .DS_Store
 uploads-7b-fc-a0-b1-42-QUBDUpExtruder.scad
+
+.gitignore
+
+uploads-0e-3f-fd-fc-08-FilaBottle.scad
+
+Rocket2.scad
