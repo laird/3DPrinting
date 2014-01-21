@@ -8,11 +8,15 @@
 //
 // FilAdapter that screws onto a 2 Liter bottle, that fits into the Filastruder hopper.
 
-part="both"; // "threads" for the part to print, "neck" for the part to subtract from your part
+/* [General] */
+
+part="both"; // [funnel,cap,fila,angle,comb,both,both-s]
 
 half=0;	// 1=show cross section
 
 clearance=0.4; // tune to get the right 'fit' for your printer
+
+/* [Tweaks] */
 
 $fn=64;
 
