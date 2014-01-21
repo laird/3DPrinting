@@ -13,7 +13,7 @@
 */
 
 $fn=32;
-part = 11; //[0:Preview Assembled, 6:Body plated, 9:Lever plated, 10:Vent, 11:Fan vent]
+part = 10; //[0:Preview Assembled, 6:Body plated, 9:Lever plated, 10:Vent, 11:Fan vent]
 
 /* [Spring] */
 
@@ -145,8 +145,8 @@ module fanVent() {
 					translate([2.5,0,0]) difference() {
 						union() {
 							translate([0,-vstraight,0])
-								cube([bx-ms-2*clearance,by+vstraight,fs-bz-clearance+2+clearance]);
-							translate([-bx+bx-ms-2*clearance,0,0]) cube([bx,by,1]);
+								cube([bx-ms-2*clearance-2,by+vstraight,fs-bz-clearance]);
+							translate([-bx+bx-ms-2*clearance-2,0,0]) cube([bx,by,1]);
 							}
 						translate([1,1+11,-1])
 							difference() {
@@ -161,8 +161,9 @@ module fanVent() {
 				}
 			vent2();
 			translate([ms+clearance,0,bz+clearance]) translate([-.73+bx-2*mx-2*clearance-1,1+11,2+fs-bz-clearance-3])
-				cube([1,fs-2-12,vr*.5]);
+				cube([1,fs-2-12,vr*.1]);
 			}
+			// bisect for design
 			//translate([0,-60,35]) cube([100,100,20]);
 		}
 	}
@@ -203,6 +204,8 @@ module vent1() {
 		}
 	}
 
+// the actual vent tube
+
 module vent(vh) {
 	vLen = 2*vr;
 	difference() {
@@ -210,12 +213,12 @@ module vent(vh) {
 			rotate([0,0,360/16]) {
 			difference() {
 				union() {
-					cylinder($fn=8, r=vr, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
+					translate([0,0,-3]) cylinder($fn=8, r=vr, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
 					//translate([0,0,vin]) cylinder($fn=8, r=vr+1, h=1); // 60 mm to reach extruder, 10mm fit into extruder body
 					rotate([0,0,-360/16]) translate([vr,0,vh+vin-vopenh/2-1])
 						rotate([0,-30,0]) cube([vLen,vopenw+2, vopenh+2], center = true);
 					}
-				translate([0,0,-1]) cylinder($fn=8, r=vr-vw, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
+				translate([0,0,-4]) cylinder($fn=8, r=vr-vw, h=vh+vin); // 60 mm to reach extruder, 10mm fit into extruder body
 				rotate([0,0,-360/16]) translate([vr,0,vh+vin-vopenh/2-1])
 					rotate([0,-30,0]) cube([vLen+1,vopenw, vopenh], center = true);
 				}
@@ -229,11 +232,11 @@ module vent(vh) {
 
 module vent2() {
 	difference() {
-		translate([(2*mx+bx)/2, vin/2-vstraight, bz+(fs-bz)/2+2-.7])
+		translate([(2*mx+bx)/2, vin/2-vstraight, bz+(fs-bz)/2+2-.7-1])
 			difference() {
-				rotate([0,0,-32]) rotate([0,360*2/8,0])
-					translate([0,2,0]) vent(vh-vstraight);
-				translate([-vh*.7,-vh,-vr+.46-10]) cube([vh,2*vh,10]);
+				rotate([0,0,-30]) rotate([0,360*2/8,0])
+					translate([0,2,0]) vent(vh-vstraight+5);
+				translate([-vh*.7,-vh,-vr+.46-10+1]) cube([vh,2*vh,10]);
 				}
 		hotend();
 		}
@@ -249,14 +252,13 @@ module ventHole(){
 
 // hole in fan vent for vent
 module ventHole2(){
-	echo("vent 2 ",(2*mx+bx)/2, wall, bz+(fs-bz)/2+3);
-	translate([0,-vstraight-3,0]) translate([(2*mx+bx)/2+clearance, vin/2+1.1, bz+(fs-bz)/2+2+clearance-1.1]) {
-		translate([0,2.5,0]) rotate([90,0,0]) rotate([0,-32,0]) rotate([0,0,360/16])
-			translate([0,0,3]) cylinder($fn=8, r=vr-vw, h=20, center=true);
-		translate([3.2,vstraight-.5,0]) rotate([90,0,0]) rotate([0,0,0]) rotate([0,0,360/16])
+	translate([0,-vstraight-3,-1]) translate([(2*mx+bx)/2+clearance, vin/2+1.1, bz+(fs-bz)/2+2+clearance-1.1]) {
+		translate([0,2.5,0]) rotate([90,0,0]) rotate([0,-30,0]) rotate([0,0,360/16])
+			translate([0,0,3]) cylinder($fn=8, r=vr-vw, h=14, center=true);
+		translate([1.5,vstraight-3.3,0]) rotate([90,0,0]) rotate([0,0,0]) rotate([0,0,360/16])
 			cylinder($fn=8, r=vr-vw, h=vstraight*1.3, center=true);
 		}
-}
+	}
 
 module ventPlate(){
 	translate([bx+30,by+vin+13,1.54])
@@ -429,7 +431,7 @@ module assembled(tilt=0) {
 	color("red") filament();
 	color("grey") screws();
 	color("grey") spring();
-	//fan();
+	%fan();
 	if (tilt==1) rotLever(1);
 	if (tilt==0) lever(1);
 	vent1();

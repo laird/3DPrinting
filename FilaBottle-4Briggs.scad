@@ -8,7 +8,11 @@
 //
 // FilAdapter that screws onto a 2 Liter bottle, that fits into the Filastruder hopper.
 
+<<<<<<< HEAD
 part="comb"; // "threads" for the part to print, "neck" for the part to subtract from your part
+=======
+part="fila"; // "threads" for the part to print, "neck" for the part to subtract from your part
+>>>>>>> f49c02c81ad8ab46c2f2d170480c03a12e3a0fc6
 
 half=0;	// 1=show cross section
 
@@ -114,10 +118,32 @@ module FilaBottle() {
 	difference() {
 		union() {
 			translate([0,0,filaDepth+filaGap]) bottleHolder();
+<<<<<<< HEAD
 			translate([-filaX/2,-filaY/2,0]) cube([filaX,filaY,filaDepth+filaGap]);
 			translate([0,0,filaDepth]) cylinder(r1=filaX/2,r2=holderOR, h=filaGap);
 			}
 		translate([0,-8,12]) rotate([-20,0,0]) filaCombHole();
+=======
+//			translate([-filaX/2,-filaY/2,0]) cube([filaX,filaY,filaDepth+filaGap]);
+
+			difference() {
+				translate([-filaX/2,-filaY/2,0]) cube([filaX,filaY,filaDepth+filaGap]);
+				for (x = [-filaX/2,filaX/2]) {
+					for (y = [-filaY/2,filaY/2]) {
+						translate([x,y,filaDepth/2+1]) cube([8,8,filaDepth+3], center=true);
+						}
+					}
+				}
+			for (x = [-filaX/2+4,filaX/2-4]) {
+				for (y = [-filaY/2+4,filaY/2-4]) {
+					translate([x,y,filaDepth/2+1/2]) cylinder(r=4, h=filaDepth+1.9, center=true);
+					}
+				}
+
+			translate([0,0,filaDepth]) cylinder(r1=filaX/2,r2=holderOR, h=filaGap);
+			}
+		translate([0,-8,2]) rotate([-20,0,0]) filaCombHole();
+>>>>>>> f49c02c81ad8ab46c2f2d170480c03a12e3a0fc6
 		//translate([0,-8,12]) rotate([-20,0,0]) for (x=[-filaX/2:filaX/4:filaX/2]) {
 		//	translate([x-otherR,-2-otherR,7]) rotate([-hAngle,0,0]) cube([otherD,otherD,holderZ+20]);
 		//	}	//translate([0,0,filaDepth]) difference() {
@@ -176,13 +202,21 @@ module FilaAngledBottle() {
 		translate([-20,-30,-20]) cube([40,60,20]);
 		if (half) translate([1,-50,-1]) cube([120,120,120]);
 		}
+<<<<<<< HEAD
 	translate([0,holderY,holderZ]) rotate([45,0,0]) translate([0,0,filaGap]) translate([0,off,0]) 
+=======
+	translate([0,holderY,holderZ]) rotate([45,0,0]) translate([0,0,filaGap]) translate([0,off,0])
+>>>>>>> f49c02c81ad8ab46c2f2d170480c03a12e3a0fc6
 		bottleHolder();
 	}
 
 module filaComb() {
 	for (x=[-filaX/4:filaX/4:filaX/4]) {
+<<<<<<< HEAD
 			translate([x-otherR+hGap,-2-otherR+hGap,7+hGap]) rotate([-hAngle,0,0]) translate([0,0,abs(x)-combOver]) 
+=======
+			translate([x-otherR+hGap,-2-otherR+hGap,7+hGap]) rotate([-hAngle,0,0]) translate([0,0,abs(x)-combOver])
+>>>>>>> f49c02c81ad8ab46c2f2d170480c03a12e3a0fc6
 				cube([otherD-hGap*2,otherD-hGap*2,holderZ+combOver-abs(x)]);
 		}
 	translate([-filaX/2,-2-otherR+hGap,7+hGap]) rotate([-hAngle,0,0]) translate([0,0,holderZ-hHandle])cube([filaX,otherD-hGap*2,hHandle]);
@@ -190,7 +224,11 @@ module filaComb() {
 
 module filaCombHole() {
 	for (x=[-filaX/2:filaX/4:filaX/2]) {
+<<<<<<< HEAD
 			translate([x-otherR,-2-otherR,7]) rotate([-hAngle,0,0]) translate([0,0,abs(x)-combOver]) 
+=======
+			translate([x-otherR,-2-otherR,7]) rotate([-hAngle,0,0]) translate([0,0,abs(x)-combOver])
+>>>>>>> f49c02c81ad8ab46c2f2d170480c03a12e3a0fc6
 				cube([otherD,otherD,holderZ+combOver-abs(x)]);
 		}
 	}
