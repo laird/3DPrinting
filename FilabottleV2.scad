@@ -45,7 +45,7 @@ funnelRim = 5;
 filaX = 20;
 filaY = 39;
 filaDepth = 40;
-filaHoleD = filaX*.7;
+filaHoleD = filaX-4;
 filaHoleR = filaHoleD/2;
 filaGap = bottleIR-filaHoleR;
 
@@ -137,7 +137,7 @@ thin = 0.5;
 wide=10;
 wideR=7;
 
-hAngle=23;
+hAngle=22;
 hOffset=14;
 hGap = 0.4;
 hHandle = 10;
@@ -147,12 +147,12 @@ module FilaAngledBottle() {
 		union() {
 			translate([-filaX/2,-filaY/2,0]) cube([filaX,filaY,filaDepth+filaGap]);
 			translate([0,holderY,holderZ]) rotate([45,0,0]) cylinder(r1=filaX/2,r2=holderOR, h=filaGap);
-			translate([0,hOffset,-10]) rotate([hAngle,0,0]) cylinder(r=filaHoleR+2, h=holderZ+20);
+			translate([0,hOffset,-13]) rotate([hAngle,0,0]) cylinder(r=filaHoleR+2, h=holderZ+26);
 			for (x=[-filaX/4:filaX/4:filaX/4]) {
 				translate([x,-filaY/2,filaDepth+filaGap-wideR]) rotate([45,0,0]) cube([thin,wide,wide]);
 				}
 			}
-		translate([0,hOffset,-10]) rotate([hAngle,0,0]) cylinder(r=filaHoleR, h=holderZ+20);
+		translate([0,hOffset,-13]) rotate([hAngle,0,0]) cylinder(r=filaHoleR, h=holderZ+26);
 		filaCombHole();
 		translate([0,holderY,holderZ]) rotate([45,0,0]) translate([0,0,-.1]) cylinder(r1=filaHoleR,r2=bottleIR, h=filaGap+.2);
 		echo("fila funnel ",funnelIR);
