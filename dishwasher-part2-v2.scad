@@ -24,8 +24,6 @@ $fn=16;
 baset = 2*t+4*r;
 echo(baset);
 
-
-
 p=[[w3h,h6],[w2h,h],[w5h,h],[w4h,h4],
 	[-w4h,h4],[-w5h,h],[-w2h,h],[-w3h,h6]];
 
@@ -37,6 +35,9 @@ difference() {
 			polygon(points=p, paths=[[0,1,2,3,4,5,6,7,0]]);
 			}
 		translate([-2*(r+t),0,baset-g]) cube([4*(r+t),h2+t,tab]);
+		for (y = [10:2*t:10+4*t]) {
+			translate([-3*(r+t),y,baset-g]) cube([6*(r+t),t,t]);
+			}
 		}
 	// vertical slot
 	translate([0,0,baset-t-r]) rotate([-90,0,0]) translate([0,0,h6-g]) 

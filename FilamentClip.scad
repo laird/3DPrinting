@@ -3,7 +3,7 @@
 // (c) 2014 Laird Popkin
 
 barWidth = 50;
-barThick = 5;
+barThick = 6;
 thick=2.5;
 height = barThick+2*thick;
 head = 10;

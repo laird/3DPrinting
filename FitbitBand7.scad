@@ -6,6 +6,8 @@
 
 /* [Settings] */
 
+// Part
+part = 0; //[0:Band, 1:Box]
 // Measurement around wrist (mm).
 wristLength = 7.25*24.5;
 // Length of links
@@ -17,7 +19,7 @@ linkHeight=7;
 pi=3.14159; // I could go on...
 wristLen = wristLength + linkHeight*3.14159; // diameter of outside of band to allow for thickness
 in=24.5;
-len = 1.4*in;
+len = 1.4*in+2;
 width=8.5/16*in;
 height=3/8*in;
 echo(len,width,height);
@@ -26,15 +28,15 @@ xoff=width/2-r;
 yoff=height/2-r;
 thick=.5;
 
-flexScale=1.2;
-flexLScale=1.05;
+flexScale=1.3;
+flexLScale=1.105;
 
 blockH=10;
 angle=30; // angle of face
 zoff = sin(30)*5;
 
 outerWidth=width+4.6*thick;
-outerLen = len-4;
+outerLen = len-3;
 outerHeight = height+thick;
 
 hinge_dia = outerHeight * 1000;
@@ -43,7 +45,6 @@ hingeXscale = .8;
 hingeXoff=0.7;
 
 echo("wrist band length ",wristLen);
-
 
 flexAngle = 88.7; //89.2;
 
@@ -74,16 +75,19 @@ module flex() {
 
 module male() {
 	scale([1,1/2,1]) {
-		translate([-outerWidth/8,0,0]) cube([outerWidth/4,outerWidth/2,linkHeight]);
-		cylinder(r=outerWidth/4, h=linkHeight);
+		translate([-outerWidth/8,0,0])
+			cube([outerWidth/4,outerWidth/2,linkHeight]);
+		translate([0,-gap,0]) cylinder(r=outerWidth/4, h=linkHeight);
 		}
 	}
 
 module female() {
 	scale([1,1/2,1]) difference() {
-		translate([-outerWidth/2,-outerWidth/2-gap,0]) cube([outerWidth,outerWidth,linkHeight]);
-		translate([-outerWidth/8-gap,0,-1]) cube([outerWidth/4+0.8,outerWidth/2,linkHeight+2]);
-		translate([0,0,-1]) cylinder(r=outerWidth/4+gap, h=linkHeight+2);
+		translate([-outerWidth/2,-outerWidth/2-gap,0]) 
+			cube([outerWidth,outerWidth,linkHeight]);
+		translate([-outerWidth/8-gap,0,-1]) 
+			cube([outerWidth/4+2*gap,outerWidth/2,linkHeight+2]);
+		translate([0,0,-1]) cylinder(r=outerWidth/4+2*gap, h=linkHeight+2);
 		}
 	}
 
@@ -101,14 +105,15 @@ module FitBitBand() {
 			//block in middle of 'face'
 			translate([0,-4,height/2+thick/2+outerHeight/4]) cube([outerWidth,outerLen*.2,outerHeight/2],center=true); // around flex
 			//Make sides thicker
-			translate([0,0,height/2+thick/2]) cube([outerWidth,outerLen,height-2*r],center=true); // around flex
+			translate([0,-4,height/2+thick/2])
+				cube([outerWidth,outerLen,height-2*r],center=true); // around flex
 			// links on both sides
 			translate([0,0,outerHeight-linkHeight]) {
 				for (link = [0:numLinks-1]) {
 					assign (y=link*linkLen) {
 //				for (y=[0:linkLen:wristLen/4+outerWidth/4]) {
 					translate([hingeXoff,outerLen/2+y+linkLen/2,0]) scale([hingeXscale,1,1]) demo(linkHeight,gap/hingeXscale);
-					translate([hingeXoff,-(outerLen/2+y+linkLen/2),0]) scale([hingeXscale,1,1]) demo(linkHeight,gap/hingeXscale);
+					translate([hingeXoff,-(outerLen/2+y+linkLen/2)-2,0]) scale([hingeXscale,1,1]) demo(linkHeight,gap/hingeXscale);
 					}
 				translate([0,-wristLen/2,0]) male();
 				translate([0,wristLen/2,0]) female();

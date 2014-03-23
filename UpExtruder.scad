@@ -104,6 +104,10 @@ vhr = midW*.4;
 // fan size
 fs = 40;
 
+module spacer() {
+	cylinder(r=springR-clearance, h=1);
+}
+
 module fan() {
 	translate([bx+clearance, 5, fs]) rotate([0,90,0]) cube([fs,fs,10]);
 	}
@@ -537,3 +541,4 @@ if (part==9) Lplate();
 if (part==10) ventPlate();
 if (part==11) fanVentPlated();
 if (part==12) allPlated();
+if (part==13) spacer();
