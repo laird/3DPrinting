@@ -7,11 +7,11 @@
 /* [Settings] */
 
 // Measurement around wrist (mm).
-wristLenMM = 200;
+wristLenMM = 0;
 // and in inches
-wristLenIn = 0;
+wristLenIn = 6;
 // Part to view
-part = 5; //[5: Preview, 4:Band]
+part = 4; //[5: Preview, 4:Band]
 
 // . 0:Assembled Flex (don't print), 1:Flex Band, 2:Flex Box Bottom, 3:Flex Box Top]
 
@@ -26,7 +26,7 @@ bandThick=7;
 // Band 'wall' thickness (mm)
 bandWall = 2;
 // Generate support in model
-support=1; //[0:Don't include support, 1:Include support]
+support=0; //[0:Don't include support, 1:Include support]
 // Flex adjust in/out. Positive moves towards the outside, negative moves to inside. Adjust if needed to have the Flex intersect the band as you like.
 flexTweakR = 1.5;
 // Flex adjust up/down. Positive moves towards the end with the lights, negative moves the other way.
@@ -183,7 +183,7 @@ difference() {
 bandH = width+2*bandWall;
 
 module solidBand(preview=0) {
-	wristR = wristLen/pi/2/stretch-bandThick/2;
+	wristR = wristLen/pi/2/stretch;
 	wristW = wristR+bandThick;
 	echo ("wrist len ",wristLen," wrist R ",wristR);
 	color("red") {
