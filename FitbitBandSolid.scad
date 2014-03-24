@@ -6,18 +6,43 @@
 
 /* [Settings] */
 
-// Part
-part = 4; //[0:Assembled, 1:Band, 2:Box Bottom, 3:Box Top, 4:Solid Band]
 // Measurement around wrist (mm).
-wristLenMM = 0;
+wristLenMM = 200;
 // and in inches
-wristLenIn = 6;
+wristLenIn = 0;
+// Part to view
+part = 5; //[5: Preview, 4:Band]
+
+// . 0:Assembled Flex (don't print), 1:Flex Band, 2:Flex Box Bottom, 3:Flex Box Top]
+
+/* [Solid Band] */
+
+// Ratio of wrist width to height. 1.0 = circular, 1.25 is normal.
+stretch = 1.25;
+// Fraction of wrist size to leave open. 1.0 is very loose, 0.8 is tight.
+bandOpenRatio = 0.8;
+// Band thickness (mm)
+bandThick=7;
+// Band 'wall' thickness (mm)
+bandWall = 2;
+// Generate support in model
+support=1; //[0:Don't include support, 1:Include support]
+// Flex adjust in/out. Positive moves towards the outside, negative moves to inside. Adjust if needed to have the Flex intersect the band as you like.
+flexTweakR = 1.5;
+// Flex adjust up/down. Positive moves towards the end with the lights, negative moves the other way.
+flexTweakX = 0;
+// Clearance around Fitbit in band, adjust for your printer. 0=none, .25=loose
+clearance=.25;
+clearanceFactor=clearance/10;
+
+/* [Hidden] */
 
 wristLength = wristLenMM + wristLenIn*24.5;
 // Length of links
 linkLen = 13; // [11:Tight, 12:Tight-ish, 13:Loose-ish, 14:Loose]
 
 /* [Hidden] */
+$fn=16;
 linkHeight=7;
 pi=3.14159; // I could go on...
 wristLen = wristLength + linkHeight*3.14159; // diameter of outside of band to allow for thickness
@@ -58,8 +83,6 @@ echo("links ",numLinks," length ",linksLen);
 gap = 0.8;
 
 echo("size ",outerWidth,outerLen,outerHeight);
-
-$fn=16;
 
 module flex() {
 	translate([0,0,-1]) difference() {
@@ -157,36 +180,41 @@ difference() {
 	}
 }
 
-stretch = 1.25;
-bandH = width+2;
-bandThick=6+1;
-support=1;
+bandH = width+2*bandWall;
 
-module solidBand() {
-	wristR = wristLen/pi/2/stretch;
+module solidBand(preview=0) {
+	wristR = wristLen/pi/2/stretch-bandThick/2;
 	wristW = wristR+bandThick;
 	echo ("wrist len ",wristLen," wrist R ",wristR);
-	difference() {
-		scale([stretch,1,1]) difference() {
-			translate([0,-bandThick/2,0]) 
-				cylinder(r=wristR+bandThick/2, h=bandH, $fn=64);
-			translate([0,-1,-1]) 
-				cylinder(r=wristR, h=bandH+2, $fn=64);
-			}
+	color("red") {
 		difference() {
-			translate([-len/2/1.0,-wristR-1,width/2+1]) 
-				rotate([0,-90,180]) scale([1.025,1.05,1.02]) flex();
-			if (support) //for (xo=[-len/5:len/2.5:len/5]) {
-				translate([0,-wristR-bandThick,0]) 
-					cube([0.4,bandThick+2,width+2*r]); // loop
-				//}
+			scale([stretch,1,1]) difference() {
+				translate([0,-bandThick/2,0]) 
+					cylinder(r=wristR+bandThick/2, h=bandH, $fn=64);
+				translate([0,-1,-1]) 
+					cylinder(r=wristR, h=bandH+2, $fn=64);
+				}
+			difference() {
+				translate([-len/2-flexTweakX,-wristR-flexTweakR,width/2+bandWall]) 
+					rotate([0,-90,180]) 
+						scale([1+2*clearanceFactor,
+							1+clearanceFactor,
+							1+0*clearanceFactor]) 
+						flex();
+				if (support) //for (xo=[-len/5:len/2.5:len/5]) {
+					translate([0,-wristR-bandThick,0]) 
+						cube([0.4,bandThick+2,width+2*r]); // loop
+					//}
+				}
+			translate([-wristR*bandOpenRatio,0,-1]) 
+				cube([2*wristR*bandOpenRatio, (wristR+bandThick),width+2*r+2]);
 			}
-		//translate([-wristW*stretch,.8*wristR,-1]) 
-		//	cube([wristW*2*stretch,wristW,width+2*r+2]);
-		// open end to put on arm
-		translate([-wristR*.8,0,-1]) 
-			cube([2*wristR*.8, (wristR+bandThick),width+2*r+2]);
 		}
+		if (preview)
+			translate([-len/2-flexTweakX,-wristR-flexTweakR,width/2+bandWall]) 
+				rotate([0,-90,180])
+					color("black") flex();
+
 	}
 
 module boxBottom() {
@@ -218,7 +246,8 @@ module boxTop() {
 if ((part==0)||(part==1)) band();
 if ((part==0)||(part==2)) boxBottom();
 if ((part==0)||(part==3)) boxTop();
-if (part==4) solidBand();
+if (part==4) solidBand(0);
+if (part==5) rotate([-90,0,0]) solidBand(1);
 
 //male();
 //female();
