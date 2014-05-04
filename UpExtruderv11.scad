@@ -18,7 +18,7 @@ part = 0; //[0:Preview Assembled, 6:Body plated, 9:Lever plated, 10:Vent, 11:Fan
 /* [Spring] */
 
 // Spring hole height (mm)
-springH = 18;
+springH = 16;
 // Spring hole radius (mm)
 springR = 3;
 
@@ -317,12 +317,12 @@ module bearingHub() {
 			translate([hx+bor+boff, my, hz]) {
 				translate([0,0,bw/2+(bor-bir)/2]) {
 					cylinder(r1=(bir+bor)/2, r2=bir-clearance, h=(bor-bir), center=true);
-					translate([0,0,hgOffset])
+					translate([0,0,hgOffset-.25])
 						cylinder(r1=(bir+bor)/2+hubGuide, r2=bir-clearance, h=(bor-bir)+hubGuide, center=true);
 					}
 				translate([0,0,-(bw/2+(bor-bir)/2)]) {
 					cylinder(r2=(bir+bor)/2, r1=bir-clearance, h=(bor-bir), center=true);
-					translate([0,0,-hgOffset])
+					translate([0,0,-hgOffset+.25])
 						cylinder(r2=(bir+bor)/2+hubGuide, r1=bir-clearance, h=(bor-bir)+hubGuide, center=true);
 					}
 				}
@@ -343,7 +343,7 @@ module lever(showBearing=0) {
 			translate([-ll,by-2*wall,wall+2*clearance])
 				cube([bx*.7+ll, 3*wall, midW-2*clearance]);
 			// stick down to cover open area
-			translate([wall*2+2*clearance,by-2.5*wall,bz/2])
+			translate([wall*2.5+2*clearance,by-2.5*wall,bz/2])
 				cube([wall,2*wall,midW-2*clearance],center=true);
 			}
 		translate([-ll,by-.1+wall,wall+clearance-1])
@@ -375,8 +375,8 @@ module leverHole() {
 	translate([2-ll,by-2*wall-clearance,wall+clearance])
 		cube([bx*.7+clearance+2+ll, 2*wall+2*clearance, midW]);
 	translate([sx2, sy2, 0]) rotate([0,0,la]) translate([-sx2, -sy2, 0])
-		translate([-1,by-2*wall-clearance,wall+clearance])
-			cube([bx*.7+clearance+2, 2*wall+10, midW]);
+		translate([-11,by-2*wall-clearance,wall+clearance])
+			cube([bx*.7+clearance+2+11, 2*wall+10, midW]);
 	}
 
 module box() {
@@ -389,13 +389,13 @@ module spring() {
 	}
 
 module springHole() {
-	translate([4, by/2+wall+.5,bz/2]) rotate([-90,0,0])
+	translate([4, by/2+wall+2.5,bz/2]) rotate([-90,0,0])
 		cylinder(r=springR, h=springH, center = true);
 	}
 
 module springHolder() {
 	translate([4, by/2+wall,bz/2]) rotate([-90,0,0])
-		cylinder(r=3+1, h=springH+2+2, center = true);
+		cylinder(r=3+wall/2, h=springH+2+2, center = true);
 	}
 
 module holes() {
@@ -427,11 +427,11 @@ module assembled(tilt=0) {
 	//color("green") BFrontHanging();
 	//translate([0,0,clearance]) Bback();
 	extruderBody();
-	%motor();
+	//%motor();
 	color("red") filament();
 	color("grey") screws();
 	color("grey") spring();
-	%fan();
+	//%fan();
 	if (tilt==1) rotLever(1);
 	if (tilt==0) lever(1);
 	vent1();

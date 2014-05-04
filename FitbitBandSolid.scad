@@ -9,7 +9,7 @@
 // Measurement around wrist (mm).
 wristLenMM = 0;
 // and in inches
-wristLenIn = 6;
+wristLenIn = 6.5;
 // Part to view
 part = 4; //[5: Preview, 4:Band]
 
@@ -47,7 +47,7 @@ linkHeight=7;
 pi=3.14159; // I could go on...
 wristLen = wristLength + linkHeight*3.14159; // diameter of outside of band to allow for thickness
 in=24.5;
-len = 1.4*in+2;
+len = 1.4*in;
 width=8.5/16*in;
 height=3/8*in;
 echo(len,width,height);
@@ -207,7 +207,7 @@ module solidBand(preview=0) {
 					//}
 				}
 			translate([-wristR*bandOpenRatio,0,-1]) 
-				cube([2*wristR*bandOpenRatio, (wristR+bandThick),width+2*r+2]);
+				cube([2*wristR*bandOpenRatio, (wristR+bandThick),width+2*bandWall+2]);
 			}
 		}
 		if (preview)
