@@ -4,7 +4,7 @@
 // Credit to eagleapex for creating and then deleting http://www.thingiverse.com/thing:10489 
 // which inspired me to create this.
 
-part="funnel"; // "threads" for the part to print, "neck" for the part to subtract from your part
+part="cap"; // "threads" for the part to print, "neck" for the part to subtract from your part
 clearance=0.4; // tune to get the right 'fit' for your printer
 
 // Bottle params
@@ -61,6 +61,11 @@ module bottleHolder() {
 		}
 	}
 
+module bottleCap() {
+	translate([0,0,1]) bottleHolder();
+	cylinder(r=holderOR, h=1);
+	}
+
 module funnel() {
 	translate([0,0,bottleHeight]) difference() {
 		difference() {
@@ -78,3 +83,5 @@ module funnel() {
 if (part=="threads") bottleHolder();;
 if (part=="neck") bottleNeck();
 if (part=="funnel") funnel();
+if (part=="holder") bottleHolder();
+if (part=="cap") bottleCap();
