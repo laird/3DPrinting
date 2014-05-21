@@ -30,11 +30,16 @@ threadLen=15;
 rim = 5;
 // Height of rim around jar (mm)
 bottleHeight=9;
-
+// Handle Length
+handleLength = 40;
+// Handle Thickness
+handleThick = 20;
+// Hand Space (between jar and handle)
+handSpace = 25;
 
 // holder params
 
-holderOD=bottleOD+5;
+holderOD=bottleOD+rim;
 holderOR=holderOD/2;
 
 // funnel params
