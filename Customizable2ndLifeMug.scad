@@ -5,33 +5,61 @@
 // which inspired me to create this.
 //
 // Respun to do http://www.thingiverse.com/thing:310961 parametrically.
+//
+// TO DO:
+// - Add narrow and wide mason jar measurements as selectable jars
+// - Add a label imprinted around the rim (your name, etc.)
 
 /* [Hidden] */
 
 part="mug"; // "threads" for the part to print, "neck" for the part to subtract from your part
 clearance=0.4; // tune to get the right 'fit' for your printer
+jar = [[0,0,0,0],
+	[25.07, 27.4, 2.7, 2, 15, 9]
+	]; // 2 liter bottle
+
+// http://en.wikipedia.org/wiki/Mason_jar
+
+// regular mouth 2 3⁄8 in (60 mm) inner [2 3⁄4 in (70 mm) outer] diameter or 
+// wide mouth 3 in (76 mm) inner [3 3⁄8 in (86 mm) outer] diameter
+
+//standard narrow mouth canning jar:
+//
+//standard narrow mouth canning jar. It is 5tpi.
+//The height of the 5 tpi thread is 0.060". The radius of the thread top is 0.044". The radius of the 
+//base corner roots is 0.030" max. The sides of the threads are thirty degrees from vertical."
 
 /* [Jar Measurements] */
 
-// Jar inner diameter (not including threads)
-bottleID=25.07;
-// Jar outer diameter (including threads)
-bottleOD=27.4;
-// Jar thread vertical spacing (mm)
-bottlePitch=2.7;
-// Angle of thread screws (degrees, 0 = level)
-bottleAngle=2;
+// Pick jar size
+
+jarNumber = 1; // [1:2 Liter bottle, 0:Custom]
+// Custom inner diameter (not including threads)
+jarID = 25.07;
+bottleID = jarNumber ? jar[jarNumber][0] : jarID;
+echo(bottleID);
+// Custom outer diameter (including threads)
+jarOD=27.4;
+bottleOD=jarNumber ? jar[jarNumber][1] : jarOD;
+// Custom thread vertical spacing (mm)
+jarPitch=2.7;
+bottlePitch=jarNumber ? jar[jarNumber][2] : jarPitch;
+// Custom angle of thread screws (degrees, 0 = level)
+jarAngle=2;
+bottleAngle=jarNumber ? jar[jarNumber][3] : jarAngle;
 // Length of thread (mm)
-threadLen=15;
+jarThreadLen=15;
+threadLen=jarThreadLen;
+// Height of rim around jar (mm) neasured from beat to top of mouth
+threadHeight=9;
+bottleHeight=jarNumber ? jar[jarNumber][4] : threadHeight;
 
 /* [Holder] */
 
 // Thickness of rim (mm)
 rim = 5;
-// Height of rim around jar (mm)
-bottleHeight=9;
 // Handle Length
-handleLength = 40;
+handleLength = 75;
 // Handle Thickness
 handleThick = 20;
 // Hand Space (between jar and handle)
@@ -77,7 +105,7 @@ module bottleNeck() {
 
 module bottleHolder() {
 	difference() {
-		cylinder(r=holderOR,h=bottleHeight);
+		cylinder(r=bottleOD/2+rim,h=bottleHeight);
 		bottleNeck();
 		}
 	}
@@ -85,6 +113,16 @@ module bottleHolder() {
 module bottleCap() {
 	translate([0,0,1]) bottleHolder();
 	cylinder(r=holderOR, h=1);
+	}
+
+module bottleMug() {
+	bottleHolder();
+	echo(bottleOD/2+rim+handSpace+handleThick);
+	translate([bottleOD/2+rim+handSpace+handleThick/2,0,0]) scale([1,1.4,1]) cylinder(r=handleThick/2,h=handleLength);
+	translate([bottleOD/2,0,0]) rotate([0,90,0]) difference() {
+		cylinder(h=handSpace+rim+handleThick/2, r=bottleHeight);
+		translate([0,-handleThick/2,0]) cube([handleThick/2,handleThick,handleLength]);
+		}
 	}
 
 module funnel() {
