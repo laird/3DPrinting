@@ -11,13 +11,17 @@
 // TO DO:
 // - Add narrow and wide mason jar measurements as selectable jars
 // - Add a label imprinted around the rim (your name, etc.)
+// - Fit over bead (add bead measurement)
+// = Add curve in so base of handle reaches jar? Adds another measurement
 
 /* [Hidden] */
 
 part="mug"; // "threads" for the part to print, "neck" for the part to subtract from your part
 clearance=0.4; // tune to get the right 'fit' for your printer
 jar = [[0,0,0,0],
-	[25.07, 27.4, 2.7, 2, 15, 9]
+	[25.07, 27.4, 2.7, 2, 15, 9],
+	[70,70+.06*25,5,2,15,12],
+	[86,86+.06*25,5,2,25,12]
 	]; // 2 liter bottle
 
 // http://en.wikipedia.org/wiki/Mason_jar
@@ -35,7 +39,7 @@ jar = [[0,0,0,0],
 
 // Pick jar size
 
-jarNumber = 1; // [1:2 Liter bottle, 2:Narrow Canning, 3:Wide Canning, 0:Custom]
+jarNumber = 3; // [1:2 Liter bottle, 2:Narrow Canning, 3:Wide Canning, 0:Custom]
 // Custom inner diameter (not including threads)
 jarID = 25.07;
 bottleID = jarNumber ? jar[jarNumber][0] : jarID;
@@ -51,10 +55,12 @@ jarAngle=2;
 bottleAngle=jarNumber ? jar[jarNumber][3] : jarAngle;
 // Length of thread (mm)
 jarThreadLen=15;
-threadLen=jarThreadLen;
+threadLen=jarNumber ? jar[jarNumber][4] : jarThreadLen;
 // Height of rim around jar (mm) neasured from beat to top of mouth
-threadHeight=9;
-bottleHeight=jarNumber ? jar[jarNumber][4] : threadHeight;
+rimHeight=9;
+bottleHeight=jarNumber ? jar[jarNumber][5] : rimHeight;
+
+echo(bottleID,bottleOD,bottlePitch,bottleAngle,threadLen,rimHeight);
 
 /* [Holder] */
 
@@ -120,10 +126,10 @@ module bottleCap() {
 module bottleMug() {
 	bottleHolder();
 	echo(bottleOD/2+rim+handSpace+handleThick);
-	translate([bottleOD/2+rim+handSpace+handleThick/2,0,0]) scale([1,1.4,1]) cylinder(r=handleThick/2,h=handleLength);
+	translate([bottleOD/2+rim+handSpace+handleThick/2,0,0]) scale([1,2*bottleHeight/handleThick,1]) cylinder(r=handleThick/2,h=handleLength);
 	translate([bottleOD/2,0,0]) rotate([0,90,0]) difference() {
 		cylinder(h=handSpace+rim+handleThick/2, r=bottleHeight);
-		translate([0,-handleThick/2,0]) cube([handleThick/2,handleThick,handleLength]);
+		translate([0,-bottleHeight,0]) cube([bottleHeight,bottleHeight*2,handleLength]);
 		}
 	}
 
