@@ -6,6 +6,8 @@
 //
 // Respun to do http://www.thingiverse.com/thing:310961 parametrically.
 //
+// Screw onto jar until rim is tight against bead, and use as a mug.
+
 // TO DO:
 // - Add narrow and wide mason jar measurements as selectable jars
 // - Add a label imprinted around the rim (your name, etc.)
@@ -33,7 +35,7 @@ jar = [[0,0,0,0],
 
 // Pick jar size
 
-jarNumber = 1; // [1:2 Liter bottle, 0:Custom]
+jarNumber = 1; // [1:2 Liter bottle, 2:Narrow Canning, 3:Wide Canning, 0:Custom]
 // Custom inner diameter (not including threads)
 jarID = 25.07;
 bottleID = jarNumber ? jar[jarNumber][0] : jarID;
@@ -58,11 +60,11 @@ bottleHeight=jarNumber ? jar[jarNumber][4] : threadHeight;
 
 // Thickness of rim (mm)
 rim = 5;
-// Handle Length
+// Handle Length (mm)
 handleLength = 75;
-// Handle Thickness
+// Handle Thickness (mm)
 handleThick = 20;
-// Hand Space (between jar and handle)
+// Hand Space (between rim and handle)
 handSpace = 25;
 
 // holder params
