@@ -10,6 +10,15 @@ Files
 * `stencil.scad` — parametric text stencil. Set the text, plate size and
   thickness, then render and export STL.
 
+Requirements
+------------
+
+`stencil.scad` uses `textmetrics()` to measure the text it is about to cut,
+which is still an experimental feature: it needs an OpenSCAD development
+snapshot, with the feature switched on under Preferences > Features >
+textmetrics, or `--enable=textmetrics` on the command line. The release
+builds (2021.01) do not have it.
+
 Notes
 -----
 
