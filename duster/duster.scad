@@ -1,8 +1,9 @@
 // Cinnamon duster: a stencil disk with a rim to hold the powder and a rake
 // you spin by hand.
 //
-// Sit it on the mug, sprinkle cinnamon inside the rim, spin the rake a
-// couple of turns, lift it off. Two printed parts, no hardware.
+// Sit it on the mug, sprinkle cinnamon inside the rim, twirl the rake a
+// couple of turns by its knob, lift it off. Two printed parts, no hardware.
+// The rake is loose — the rim keeps it roughly centred.
 //
 // Needs an OpenSCAD development snapshot with textmetrics enabled
 // (Preferences > Features > textmetrics, or --enable=textmetrics).
@@ -30,77 +31,93 @@ art_d = 84;
 message = "HELLO";
 //Font
 font = "Liberation Sans:style=Bold";
-//Letter height (mm). The pivot sits in the middle of the disk, so the text
-//runs round it on an arc rather than across it.
-text_size = 13;
-//Radius the text runs around (mm)
+//Straight across the middle, or around an arc
+layout = "line"; //[line,arc]
+//Letter height (mm), 0 fits the text to the disk
+text_size = 0;
+//Radius the text runs around, for the arc layout (mm)
 arc_r = 32;
 //Space between letters, 1 is the font default
-letter_spacing = 1.15;
-//Rings that tie the cutouts together. They cap how tall an opening can get,
-//which is what stops powder falling through before it is raked.
-bridge_mode = "rings"; //[rings,none]
-//Width of each ring (mm)
+letter_spacing = 1.1;
+//Bars tying the cutouts together: straight for line text, rings for arc
+bridges = true;
+//Width of each bar (mm)
 bridge_width = 1.6;
-//No opening may be wider than this or powder pours out unraked (mm)
+//No opening may be taller than this or powder pours out unraked (mm)
 max_cell = 8;
 //Slot width, when pattern is sunburst (mm)
 slot_w = 3;
 //Number of slots, when pattern is sunburst
 slot_count = 24;
+//Radius the sunburst slots start from (mm)
+slot_inner = 8;
 
 /* [Rake] */
-//Hub outside diameter (mm)
-hub_d = 14;
-//Pivot post diameter (mm)
-post_d = 5;
+//Knob you twirl it by: diameter and height above the disk (mm)
+knob_d = 14;
+knob_h = 18;
 //Radial spacing of teeth on one arm; arms are offset by half of this (mm)
 tooth_pitch = 6;
-//Tooth width (mm)
-tooth_w = 1.4;
+//Tooth width, along the arm (mm)
+tooth_w = 2;
 //Tooth height (mm)
 tooth_h = 3;
-//Gap between tooth tip and the disk (mm)
-tooth_clear = 0.3;
-//Finger knob height above the disk (mm)
-knob_h = 13;
+//Arm width and height (mm)
+arm_w = 2.5;
+arm_h = 3;
 
 $fn = 96;
 
 // ---- derived ---------------------------------------------------------
-rake_d = disk_d - rim_t*2 - 4;		// sweeps just inside the wall
-hub_h = 6;
-arm_t = 2;
-post_h = disk_t + tooth_clear + hub_h + 1.5;
+rake_d = disk_d - rim_t*2 - 4;		// swings just inside the wall
 
-// Per-character advances, so the letters can be spaced around the arc by
-// their real widths instead of an assumed average.
-function adv(c) = textmetrics(c, size=text_size, font=font,
+// Measured at a reference size, then scaled so the text's bounding box
+// just fits inside the artwork circle (the diagonal is the limit).
+tm0 = textmetrics(message, size=10, font=font, spacing=letter_spacing,
+	halign="center", valign="center");
+fit_size = 10 * 0.95 * art_d / norm(tm0.size);
+size = text_size > 0 ? text_size
+	: layout == "arc" ? arc_r / 2.5 : fit_size;
+tm = textmetrics(message, size=size, font=font, spacing=letter_spacing,
+	halign="center", valign="center");
+
+// Per-character advances, for spacing letters around the arc by their real
+// widths instead of an assumed average.
+function adv(c) = textmetrics(c, size=size, font=font,
 	spacing=letter_spacing).advance[0];
 function cum(i) = i <= 0 ? 0 : cum(i-1) + adv(message[i-1]);
-
 chars = len(message);
 arc_len = cum(chars);
-tm = textmetrics(message, size=text_size, font=font, spacing=letter_spacing,
-	halign="center", valign="center");
-band = tm.size[1];					// radial depth of the lettering
 
 // ---- artwork ---------------------------------------------------------
 
-// Concentric rings subdividing the cutouts, spaced by max_cell so nothing
-// is left wide enough for powder to fall through unraked, and nothing is
-// left floating once the middles of the letters drop out.
-module ties(r_in, r_out) {
-	if (bridge_mode == "rings") {
-		n = max(0, ceil((r_out - r_in) / max_cell) - 1);
-		if (n > 0) for (i = [1:n]) {
-			r = r_in + i * (r_out - r_in)/(n+1);
-			difference() {
-				circle(r = r + bridge_width/2);
-				circle(r = r - bridge_width/2);
-				}
+// Bars subdividing the cutouts, spaced from max_cell so no opening is left
+// tall enough for powder to fall through unraked, and nothing is left
+// floating once the middles of the letters drop out.
+module line_ties() {
+	h = tm.size[1];
+	n = max(0, ceil(h / max_cell) - 1);
+	if (n > 0) for (i = [1:n])
+		translate([tm.position[0] + tm.size[0]/2,
+				tm.position[1] + i * h/(n+1)])
+			square([tm.size[0] + 10, bridge_width], center=true);
+	}
+
+module ring_ties() {
+	h = tm.size[1];
+	n = max(0, ceil(h / max_cell) - 1);
+	if (n > 0) for (i = [1:n]) {
+		r = arc_r - h/2 + i * h/(n+1);
+		difference() {
+			circle(r = r + bridge_width/2);
+			circle(r = r - bridge_width/2);
 			}
 		}
+	}
+
+module line_text() {
+	text(message, size=size, font=font, spacing=letter_spacing,
+		halign="center", valign="center");
 	}
 
 // Letters set around the arc, each turned to stand upright on it.
@@ -108,7 +125,7 @@ module arc_text() {
 	for (i = [0:chars-1]) {
 		a = (cum(i) + adv(message[i])/2 - arc_len/2) / arc_r * 180 / PI;
 		rotate(-a) translate([0, arc_r])
-			text(message[i], size=text_size, font=font,
+			text(message[i], size=size, font=font,
 				halign="center", valign="center");
 		}
 	}
@@ -116,20 +133,18 @@ module arc_text() {
 module artwork() {
 	intersection() {
 		circle(d=art_d);
-		difference() {
-			if (pattern == "sunburst") {
-				for (i = [0:slot_count-1]) rotate(360/slot_count*i)
-					translate([art_d/4 + hub_d/4 + 2, 0])
-						square([art_d/2 - hub_d/2 - 8, slot_w], center=true);
-				}
-			else {
-				difference() {
-					arc_text();
-					ties(arc_r - band/2, arc_r + band/2);
-					}
-				}
-			// keep the cuts clear of the pivot
-			circle(d=hub_d + 4);
+		if (pattern == "sunburst") {
+			for (i = [0:slot_count-1]) rotate(360/slot_count*i)
+				translate([slot_inner, -slot_w/2])
+					square([art_d/2 - slot_inner, slot_w]);
+			}
+		else if (layout == "arc") difference() {
+			arc_text();
+			if (bridges) ring_ties();
+			}
+		else difference() {
+			line_text();
+			if (bridges) line_ties();
 			}
 		}
 	}
@@ -145,32 +160,24 @@ module plate() {
 				translate([0, 0, -1])
 					cylinder(d=disk_d - rim_t*2, h=rim_h + 2);
 				}
-			cylinder(d=post_d, h=post_h);	// pivot
 			}
 		translate([0, 0, -1]) linear_extrude(disk_t + 2) artwork();
 		}
 	}
 
-// Two arms of teeth, the second offset by half a pitch so the swept
-// spacing is half the pitch on either arm. A stub tooth covers the hub.
+// Two arms of teeth under a knob. The second arm's teeth are offset by half
+// a pitch, so the swept spacing is half the pitch on either arm alone. With
+// no pivot in the way the teeth run right in to the centre.
+//
+// Prints as drawn: the teeth stand on the bed and the arms bridge the short
+// gaps between them.
 module rake() {
-	difference() {
-		union() {
-			cylinder(d=hub_d, h=hub_h);
-			for (i = [0:1]) rotate(180*i) {
-				translate([0, -arm_t/2, tooth_h])
-					cube([rake_d/2, arm_t, 2]);
-				for (r = [hub_d/2 + 2 + (i % 2) * tooth_pitch/2
-						: tooth_pitch : rake_d/2])
-					translate([r - tooth_w/2, -arm_t/2, 0])
-						cube([tooth_w, arm_t, tooth_h]);
-				}
-			translate([hub_d/2 - tooth_w, -arm_t/2, 0])
-				cube([tooth_w, arm_t, tooth_h]);		// stub tooth
-			translate([rake_d/2 - 7, 0, 0])				// finger knob
-				cylinder(d=6, h=knob_h);
-			}
-		translate([0, 0, -1]) cylinder(d=post_d + 0.5, h=hub_h + 2);
+	translate([0, 0, tooth_h]) cylinder(d=knob_d, h=knob_h - tooth_h);
+	for (i = [0:1]) rotate(180*i) {
+		translate([0, -arm_w/2, tooth_h]) cube([rake_d/2, arm_w, arm_h]);
+		for (r = [tooth_pitch/2 * (1 + i) : tooth_pitch : rake_d/2])
+			translate([r - tooth_w/2, -arm_w/2, 0])
+				cube([tooth_w, arm_w, tooth_h]);
 		}
 	}
 
@@ -180,5 +187,5 @@ if (part == "plate") plate();
 else if (part == "rake") rake();
 else {
 	color("Gainsboro") plate();
-	color("IndianRed") translate([0, 0, disk_t + tooth_clear]) rake();
+	color("IndianRed") translate([0, 0, disk_t + 0.3]) rake();
 	}
