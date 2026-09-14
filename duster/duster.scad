@@ -8,15 +8,15 @@
 // Needs an OpenSCAD development snapshot with textmetrics enabled
 // (Preferences > Features > textmetrics, or --enable=textmetrics).
 
-//Which part to draw
-part = "assembly"; //[assembly,plate,rake]
+//Which part to draw; gallery lays out a plate of every pattern
+part = "assembly"; //[assembly,plate,rake,gallery]
 
 //Teeth break the powder up and meter it through; a flat blade squeegees
 //everything across the stencil in one sweep
 rake_style = "teeth"; //[teeth,flat]
 
 //What to cut through the disk
-pattern = "text"; //[text,sunburst]
+pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,smiley,bean,cupcake]
 
 /* [Plate] */
 //Disk diameter, sized to sit on a mug rim (mm)
@@ -134,28 +134,174 @@ module arc_text() {
 		}
 	}
 
-module artwork() {
+// ---- pictures --------------------------------------------------------
+// All line art: strokes slot_w wide, and outlines of the same width. A
+// stroke is a long narrow opening, which is exactly what the powder window
+// wants. Anything an outline closes off is tied back to the plate by
+// gaps cut with radial bars.
+
+module outline(w = slot_w) {
+	difference() {
+		offset(r=w/2) children();
+		offset(r=-w/2) children();
+		}
+	}
+
+module radial_ties(n, a0 = 0) {
+	for (i = [0:n-1]) rotate(a0 + 360/n*i)
+		translate([0, -bridge_width/2]) square([art_d, bridge_width]);
+	}
+
+module tied_outline(n, a0 = 0, w = slot_w) {
+	difference() {
+		outline(w) children();
+		radial_ties(n, a0);
+		}
+	}
+
+// A wavy stroke, h tall, swinging amp either side of centre.
+module wave(h, amp, w = slot_w) {
+	polygon(concat(
+		[for (y = [0:2:h]) [amp*sin(y/h*360) - w/2, y]],
+		[for (y = [h:-2:0]) [amp*sin(y/h*360) + w/2, y]]));
+	}
+
+// Upper half of a ring, open at the bottom so it closes nothing off.
+module arch(r, y, w = slot_w) {
+	difference() {
+		translate([0, y]) circle(r=r);
+		translate([0, y]) circle(r=r - w);
+		translate([-r - 1, y - r - 1]) square([2*r + 2, r + 1]);
+		}
+	}
+
+module heart_shape(width) {
+	s = width / 1.71;
+	translate([0, -0.78*s]) rotate(45) {
+		square(s);
+		translate([s/2, s]) circle(d=s);
+		translate([s, s/2]) circle(d=s);
+		}
+	}
+
+module star_shape(ro, ri) {
+	polygon([for (i = [0:9]) let (a = 90 + i*36, r = i % 2 == 0 ? ro : ri)
+		[r*cos(a), r*sin(a)]]);
+	}
+
+module cup_body() {
+	hull() {
+		translate([-13, -16]) circle(4);
+		translate([13, -16]) circle(4);
+		translate([-17, 4]) circle(4);
+		translate([17, 4]) circle(4);
+		}
+	}
+
+module art_heart() {
+	tied_outline(4, 45) heart_shape(62);
+	tied_outline(4, 45) heart_shape(36);
+	}
+
+module art_star() {
+	tied_outline(5, 126) star_shape(38, 17);
+	}
+
+module art_cup() {
+	tied_outline(4, 45) cup_body();
+	difference() {						// handle, a C so it closes nothing
+		translate([22, -6]) outline() circle(r=8);
+		offset(r=slot_w/2 + 2) cup_body();
+		}
+	for (x = [-8, 0, 8]) translate([x, 12]) wave(18, 2.5);
+	translate([0, -25]) square([50, slot_w], center=true);
+	}
+
+module art_snowflake() {
+	for (a = [0:60:359]) rotate(a) {
+		translate([0, -slot_w/2]) square([38, slot_w]);
+		for (r = [15, 26]) for (side = [-1, 1])
+			translate([r, 0]) rotate(side*60)
+				translate([0, -slot_w/2]) square([9, slot_w]);
+		}
+	}
+
+module art_rosetta() {
+	translate([-slot_w/2, -22]) square([slot_w, 48]);
+	for (i = [0:5]) for (side = [-1, 1])	// leaves droop from the stem
+		translate([0, -14 + i*7]) rotate(side*125)
+			translate([-slot_w/2, 0]) square([slot_w, 22 - i*2.5]);
+	translate([0, 30]) heart_shape(8);
+	}
+
+module art_smiley() {
+	tied_outline(4, 45) circle(r=34);
+	for (x = [-11, 11]) translate([x, 9]) circle(d=6);
+	difference() {
+		circle(r=22);
+		circle(r=19);
+		translate([-30, -6]) square([60, 40]);
+		}
+	}
+
+module art_bean() {
+	tied_outline(4, 45) scale([1, 1.5]) circle(r=18);
+	intersection() {					// crease stops short of the edge
+		translate([0, -25]) wave(50, 3);
+		offset(r=-5) scale([1, 1.5]) circle(r=18);
+		}
+	}
+
+module art_cupcake() {
+	intersection() {					// pleated wrapper
+		polygon([[-18, -30], [18, -30], [22, -4], [-22, -4]]);
+		for (x = [-18:6:18]) translate([x - slot_w/2, -40]) square([slot_w, 50]);
+		}
+	translate([0, -4]) square([48, slot_w], center=true);
+	for (i = [0:2]) arch(20 - i*6, 2 + i*7);
+	translate([0, 29]) circle(d=6);
+	}
+
+module art_sunburst() {
+	for (i = [0:slot_count-1]) rotate(360/slot_count*i)
+		translate([slot_inner, -slot_w/2])
+			square([art_d/2 - slot_inner, slot_w]);
+	}
+
+module art_text() {
+	if (layout == "arc") difference() {
+		arc_text();
+		if (bridges) ring_ties();
+		}
+	else difference() {
+		line_text();
+		if (bridges) line_ties();
+		}
+	}
+
+module art(name) {
+	if (name == "sunburst") art_sunburst();
+	else if (name == "heart") art_heart();
+	else if (name == "star") art_star();
+	else if (name == "cup") art_cup();
+	else if (name == "snowflake") art_snowflake();
+	else if (name == "rosetta") art_rosetta();
+	else if (name == "smiley") art_smiley();
+	else if (name == "bean") art_bean();
+	else if (name == "cupcake") art_cupcake();
+	else art_text();
+	}
+
+module artwork(name = pattern) {
 	intersection() {
 		circle(d=art_d);
-		if (pattern == "sunburst") {
-			for (i = [0:slot_count-1]) rotate(360/slot_count*i)
-				translate([slot_inner, -slot_w/2])
-					square([art_d/2 - slot_inner, slot_w]);
-			}
-		else if (layout == "arc") difference() {
-			arc_text();
-			if (bridges) ring_ties();
-			}
-		else difference() {
-			line_text();
-			if (bridges) line_ties();
-			}
+		art(name);
 		}
 	}
 
 // ---- parts -----------------------------------------------------------
 
-module plate() {
+module plate(name = pattern) {
 	difference() {
 		union() {
 			cylinder(d=disk_d, h=disk_t);
@@ -165,7 +311,7 @@ module plate() {
 					cylinder(d=disk_d - rim_t*2, h=rim_h + 2);
 				}
 			}
-		translate([0, 0, -1]) linear_extrude(disk_t + 2) artwork();
+		translate([0, 0, -1]) linear_extrude(disk_t + 2) artwork(name);
 		}
 	}
 
@@ -192,8 +338,15 @@ module rake() {
 
 // ---- output ----------------------------------------------------------
 
+gallery = ["text", "sunburst", "heart", "star", "cup",
+	"snowflake", "rosetta", "smiley", "bean", "cupcake"];
+
 if (part == "plate") plate();
 else if (part == "rake") rake();
+else if (part == "gallery")
+	for (i = [0:len(gallery)-1])
+		translate([(i % 5) * (disk_d + 10), -floor(i / 5) * (disk_d + 10), 0])
+			plate(gallery[i]);
 else {
 	color("Gainsboro") plate();
 	color("IndianRed") translate([0, 0, disk_t + 0.3]) rake();

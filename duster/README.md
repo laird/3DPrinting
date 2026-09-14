@@ -16,9 +16,14 @@ prints as drawn: its teeth stand on the bed and the arms bridge the short
 gaps between them. It is loose in use — nothing holds it but the rim, which
 keeps it roughly centred while you twirl it.
 
-Set `pattern` to `text` for a message or `sunburst` for radial slots, and
-`layout` to `line` (straight across the middle) or `arc` (around the disk).
-`text_size` of 0 fits the message to the disk.
+Set `pattern` to `text` for a message (`layout` puts it in a `line` across
+the middle or on an `arc`; `text_size` of 0 fits it to the disk), or to one
+of the pictures: `sunburst`, `heart`, `star`, `cup`, `snowflake`,
+`rosetta`, `smiley`, `bean`, `cupcake`. `part` of `gallery` draws them all.
+
+The pictures are all line art — strokes and outlines about 3mm wide —
+because a stroke is a long narrow opening, which is what the powder window
+wants. Anything an outline closes off is tied back to the plate by gaps.
 
 `rake_style` picks `teeth`, which break the powder up and meter it through
 a little at a time, or `flat`, a plain blade that squeegees everything
