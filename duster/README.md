@@ -20,6 +20,10 @@ Set `pattern` to `text` for a message or `sunburst` for radial slots, and
 `layout` to `line` (straight across the middle) or `arc` (around the disk).
 `text_size` of 0 fits the message to the disk.
 
+`rake_style` picks `teeth`, which break the powder up and meter it through
+a little at a time, or `flat`, a plain blade that squeegees everything
+across the stencil in one sweep. Print both and see which you reach for.
+
     openscad-nightly -D 'part="plate"' -o plate.stl duster.scad
     openscad-nightly -D 'part="rake"'  -o rake.stl  duster.scad
 

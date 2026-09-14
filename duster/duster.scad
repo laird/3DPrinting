@@ -11,6 +11,10 @@
 //Which part to draw
 part = "assembly"; //[assembly,plate,rake]
 
+//Teeth break the powder up and meter it through; a flat blade squeegees
+//everything across the stencil in one sweep
+rake_style = "teeth"; //[teeth,flat]
+
 //What to cut through the disk
 pattern = "text"; //[text,sunburst]
 
@@ -165,19 +169,24 @@ module plate() {
 		}
 	}
 
-// Two arms of teeth under a knob. The second arm's teeth are offset by half
-// a pitch, so the swept spacing is half the pitch on either arm alone. With
-// no pivot in the way the teeth run right in to the centre.
+// Two arms under a knob. Toothed: the second arm's teeth are offset by half
+// a pitch, so the swept spacing is half the pitch on either arm alone, and
+// with no pivot in the way the teeth run right in to the centre. Flat: each
+// arm is a full-depth blade, so one sweep pushes everything ahead of it.
 //
-// Prints as drawn: the teeth stand on the bed and the arms bridge the short
-// gaps between them.
+// Both print as drawn. The toothed rake stands on its teeth and the arms
+// bridge the short gaps between them; the flat one stands on its edge.
 module rake() {
 	translate([0, 0, tooth_h]) cylinder(d=knob_d, h=knob_h - tooth_h);
 	for (i = [0:1]) rotate(180*i) {
-		translate([0, -arm_w/2, tooth_h]) cube([rake_d/2, arm_w, arm_h]);
-		for (r = [tooth_pitch/2 * (1 + i) : tooth_pitch : rake_d/2])
-			translate([r - tooth_w/2, -arm_w/2, 0])
-				cube([tooth_w, arm_w, tooth_h]);
+		if (rake_style == "flat")
+			translate([0, -arm_w/2, 0]) cube([rake_d/2, arm_w, tooth_h + arm_h]);
+		else {
+			translate([0, -arm_w/2, tooth_h]) cube([rake_d/2, arm_w, arm_h]);
+			for (r = [tooth_pitch/2 * (1 + i) : tooth_pitch : rake_d/2])
+				translate([r - tooth_w/2, -arm_w/2, 0])
+					cube([tooth_w, arm_w, tooth_h]);
+			}
 		}
 	}
 
