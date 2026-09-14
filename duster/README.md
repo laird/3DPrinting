@@ -19,11 +19,23 @@ keeps it roughly centred while you twirl it.
 Set `pattern` to `text` for a message (`layout` puts it in a `line` across
 the middle or on an `arc`; `text_size` of 0 fits it to the disk), or to one
 of the pictures: `sunburst`, `heart`, `star`, `cup`, `snowflake`,
-`rosetta`, `smiley`, `bean`, `cupcake`. `part` of `gallery` draws them all.
+`rosetta`, `tulip`, `mandala` (`mandala_style` of `snowflake`, `flower` or
+`burst`), `smiley`, `bean`, `cupcake`, `croissant`, `maple`. `part` of
+`gallery` draws them all.
 
-The pictures are all line art — strokes and outlines about 3mm wide —
-because a stroke is a long narrow opening, which is what the powder window
-wants. Anything an outline closes off is tied back to the plate by gaps.
+Two idioms, both inside the powder window:
+
+* **Holes.** The mandalas, tulip and rosetta are built the way commercial
+  coffee stencils are: from small isolated holes — dots, teardrops,
+  petals, commas, crescents — in solid material. A hole can never enclose
+  anything, so nothing can fall out, and a hole a few mm wide passes
+  powder however long it is. Rings of holes with n-fold symmetry are the
+  whole trick behind the mandalas: `mandala_rings()` is a list of
+  `[radius, count, start angle, kind, length, width]`, one row per ring.
+  The one rule: holes whose bases meet at the centre must overlap into one
+  hole; bases that merely touch fence the centre off.
+* **Lines.** The rest are strokes and outlines about 3mm wide. Anything an
+  outline closes off is tied back to the plate by gaps.
 
 Drawing your own
 ----------------

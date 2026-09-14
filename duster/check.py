@@ -12,8 +12,8 @@ reads an STL you give it, and reports.
 import re, subprocess, sys, os, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PATTERNS = ["text", "sunburst", "heart", "star", "cup", "snowflake",
-            "rosetta", "smiley", "bean", "cupcake", "croissant", "maple"]
+PATTERNS = ["text", "sunburst", "heart", "star", "cup", "snowflake", "rosetta",
+            "tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple"]
 
 def pieces(stl):
     """Number of connected components, joining triangles on shared vertices."""

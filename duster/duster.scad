@@ -16,7 +16,10 @@ part = "assembly"; //[assembly,plate,rake,gallery]
 rake_style = "teeth"; //[teeth,flat]
 
 //What to cut through the disk
-pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,smiley,bean,cupcake,croissant,maple,svg]
+pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,tulip,mandala,smiley,bean,cupcake,croissant,maple,svg]
+
+//Which mandala, when pattern is mandala
+mandala_style = "snowflake"; //[snowflake,flower,burst]
 
 //Your own artwork, when pattern is svg. Draw it as strokes about 3mm wide
 //and run it through stroke2fill.py first; OpenSCAD only imports fills.
@@ -141,6 +144,54 @@ module arc_text() {
 		}
 	}
 
+// ---- holes -----------------------------------------------------------
+// The commercial stencils are built almost entirely from small isolated
+// holes rather than lines: a hole can never enclose anything, so nothing
+// can fall out, and a hole a few mm across sits inside the powder window
+// however long it is. These are the shapes they use. Each points along +X
+// from the origin, so ring() can aim it outward.
+
+module dot(d) circle(d=d);
+
+// Teardrop: round at the origin, tapering to a point at L.
+module drop(L, w) hull() { circle(d=w); translate([L - 0.6, 0]) circle(d=1.2); }
+
+// Petal: pointed at both ends, w wide in the middle, from 0 to L.
+module lens(L, w) {
+	R = w/4 + L*L/(4*w);
+	c = R - w/2;
+	intersection() {
+		translate([L/2, c]) circle(R);
+		translate([L/2, -c]) circle(R);
+		}
+	}
+
+// Comma: a teardrop bent through `bend` degrees, curving toward -Y.
+module comma(L, w, bend = 70) {
+	R = L / (bend * PI / 180);
+	K = 8;
+	for (k = [0:K-1]) hull() for (j = [k, k+1]) {
+		a = bend * j / K;
+		translate([R*sin(a), -(R - R*cos(a))])
+			circle(d = max(1.2, w * (1 - j/K)));
+		}
+	}
+
+// Crescent: t thick at the bottom, horns up, R across.
+module crescent(R, t) difference() { circle(R); translate([0, t]) circle(R); }
+
+// Part of a ring, from angle a1 to a2, w wide.
+module ring_arc(r, a1, a2, w = slot_w) {
+	intersection() {
+		difference() { circle(r + w/2); circle(r - w/2); }
+		polygon(concat([[0, 0]],
+			[for (a = [a1:5:a2]) [2*r*cos(a), 2*r*sin(a)]], [[2*r*cos(a2), 2*r*sin(a2)]]));
+		}
+	}
+
+// n copies of a hole around the centre, each at radius r pointing outward.
+module ring(r, n, a0 = 0) for (i = [0:n-1]) rotate(a0 + 360/n*i) translate([r, 0]) children();
+
 // ---- pictures --------------------------------------------------------
 // All line art: strokes slot_w wide, and outlines of the same width. A
 // stroke is a long narrow opening, which is exactly what the powder window
@@ -206,8 +257,8 @@ module cup_body() {
 	}
 
 module art_heart() {
-	tied_outline(4, 45) heart_shape(62);
-	tied_outline(4, 45) heart_shape(36);
+	tied_outline(2, 90) heart_shape(62);	// gaps at the notch and the tip
+	tied_outline(2, 90) heart_shape(36);
 	}
 
 module art_star() {
@@ -233,12 +284,63 @@ module art_snowflake() {
 		}
 	}
 
+// Leaves are commas fanning from a stem. They may curl into the leaf below
+// (a chain encloses nothing) but must stay clear of the stem and the frame,
+// or stem + two leaves fence off a pocket.
 module art_rosetta() {
-	translate([-slot_w/2, -22]) square([slot_w, 48]);
-	for (i = [0:5]) for (side = [-1, 1])	// leaves droop from the stem
-		translate([0, -14 + i*7]) rotate(side*125)
-			translate([-slot_w/2, 0]) square([slot_w, 22 - i*2.5]);
-	translate([0, 30]) heart_shape(8);
+	translate([0, -30]) rotate(90) drop(50, 3.5);			// stem
+	for (i = [0:6]) for (side = [-1, 1])
+		mirror([side < 0 ? 1 : 0, 0])
+			translate([5.75, -20 + i*7.5]) rotate(-5) comma(17 - i*1.8, 4.5, 55);
+	translate([0, 28]) heart_shape(8);
+	ring_arc(39.5, 200, 340);								// the cup of the pour
+	}
+
+// Stacked crescents opening upward, a heart on top, framed like the rosetta.
+module art_tulip() {
+	for (i = [0:4]) {
+		R = 24 - i*4;
+		translate([0, -30 + i*8 + R]) crescent(R, 5);
+		}
+	translate([0, 21]) heart_shape(8);
+	ring_arc(39.5, 200, 340);
+	}
+
+// Rings of holes with n-fold symmetry. Each ring is
+// [radius, count, start angle, kind, length, width]; a hole's base sits at
+// the radius and it points outward. Bases at the very centre overlap into
+// one star-shaped hole; bases that merely touch would fence the centre off.
+function mandala_rings(style) =
+	style == "flower" ? [
+		[0,    1,  0,    "dot",  5,  0],
+		[4,    6,  0,    "lens", 10, 5],
+		[15,   12, 0,    "dot",  2.5, 0],
+		[18,   6,  30,   "lens", 14, 7],
+		[18,   6,  0,    "drop", 9,  3],
+		[34,   12, 0,    "drop", 6,  3]] :
+	style == "burst" ? [
+		[0.5,  8,  0,    "drop", 14, 3],
+		[17,   8,  22.5, "lens", 9,  4],
+		[28,   16, 0,    "dot",  2.5, 0],
+		[31,   8,  22.5, "drop", 9,  4]] :
+	[	[0.5,  8,  0,    "drop", 10, 3.5],
+		[13,   8,  22.5, "lens", 11, 5],
+		[15,   16, 0,    "dot",  2.5, 0],
+		[24,   8,  0,    "drop", 10, 5],
+		[27,   8,  22.5, "lens", 8,  3.5],
+		[37.5, 16, 0,    "dot",  3,  0],
+		[36,   8,  22.5, "lens", 5,  3]];
+
+module hole(kind, L, w) {
+	if (kind == "dot") dot(L);
+	else if (kind == "drop") drop(L, w);
+	else if (kind == "lens") lens(L, w);
+	else if (kind == "comma") comma(L, w);
+	}
+
+module art_mandala() {
+	for (rg = mandala_rings(mandala_style))
+		ring(rg[0], rg[1], rg[2]) hole(rg[3], rg[4], rg[5]);
 	}
 
 module art_smiley() {
@@ -307,6 +409,8 @@ module art(name) {
 	else if (name == "cup") art_cup();
 	else if (name == "snowflake") art_snowflake();
 	else if (name == "rosetta") art_rosetta();
+	else if (name == "tulip") art_tulip();
+	else if (name == "mandala") art_mandala();
 	else if (name == "smiley") art_smiley();
 	else if (name == "bean") art_bean();
 	else if (name == "cupcake") art_cupcake();
@@ -362,14 +466,14 @@ module rake() {
 
 // ---- output ----------------------------------------------------------
 
-gallery = ["text", "sunburst", "heart", "star", "cup", "snowflake",
-	"rosetta", "smiley", "bean", "cupcake", "croissant", "maple"];
+gallery = ["text", "sunburst", "heart", "star", "cup", "snowflake", "rosetta",
+	"tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple"];
 
 if (part == "plate") plate();
 else if (part == "rake") rake();
 else if (part == "gallery")
 	for (i = [0:len(gallery)-1])
-		translate([(i % 6) * (disk_d + 10), -floor(i / 6) * (disk_d + 10), 0])
+		translate([(i % 7) * (disk_d + 10), -floor(i / 7) * (disk_d + 10), 0])
 			plate(gallery[i]);
 else {
 	color("Gainsboro") plate();
