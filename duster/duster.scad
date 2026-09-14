@@ -16,7 +16,14 @@ part = "assembly"; //[assembly,plate,rake,gallery]
 rake_style = "teeth"; //[teeth,flat]
 
 //What to cut through the disk
-pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,smiley,bean,cupcake]
+pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,smiley,bean,cupcake,croissant,maple,svg]
+
+//Your own artwork, when pattern is svg. Draw it as strokes about 3mm wide
+//and run it through stroke2fill.py first; OpenSCAD only imports fills.
+//See art/ for examples and the README for the rules.
+svg_file = "art/maple.fill.svg";
+//Tie gaps cut through it, evenly spaced around the centre
+svg_ties = 4;
 
 /* [Plate] */
 //Disk diameter, sized to sit on a mug rim (mm)
@@ -53,7 +60,7 @@ max_cell = 8;
 slot_w = 3;
 //Number of slots, when pattern is sunburst
 slot_count = 24;
-//Radius the sunburst slots start from (mm)
+//Radius the sunburst slots start from, or further out if they would touch (mm)
 slot_inner = 8;
 
 /* [Rake] */
@@ -262,10 +269,24 @@ module art_cupcake() {
 	translate([0, 29]) circle(d=6);
 	}
 
+// Artwork drawn as SVG (as filled shapes, see stroke2fill.py): any closed
+// stroke is opened up by the tie bars, which is what keeps whatever it
+// enclosed attached to the plate.
+module art_svg(file, ties, a0 = 45) {
+	difference() {
+		import(file, center=true);
+		radial_ties(ties, a0);
+		}
+	}
+
+// The slots must not touch each other at their inner ends, or they merge
+// into a ring and the middle of the disk falls out: start them no closer
+// in than the radius where a slot and a tie fit in every pitch.
 module art_sunburst() {
+	r0 = max(slot_inner, slot_count * (slot_w + bridge_width) / (2*PI));
 	for (i = [0:slot_count-1]) rotate(360/slot_count*i)
-		translate([slot_inner, -slot_w/2])
-			square([art_d/2 - slot_inner, slot_w]);
+		translate([r0, -slot_w/2])
+			square([art_d/2 - r0, slot_w]);
 	}
 
 module art_text() {
@@ -289,6 +310,9 @@ module art(name) {
 	else if (name == "smiley") art_smiley();
 	else if (name == "bean") art_bean();
 	else if (name == "cupcake") art_cupcake();
+	else if (name == "croissant") art_svg("art/croissant.fill.svg", 2, 90);
+	else if (name == "maple") art_svg("art/maple.fill.svg", 4, 45);
+	else if (name == "svg") art_svg(svg_file, svg_ties);
 	else art_text();
 	}
 
@@ -338,14 +362,14 @@ module rake() {
 
 // ---- output ----------------------------------------------------------
 
-gallery = ["text", "sunburst", "heart", "star", "cup",
-	"snowflake", "rosetta", "smiley", "bean", "cupcake"];
+gallery = ["text", "sunburst", "heart", "star", "cup", "snowflake",
+	"rosetta", "smiley", "bean", "cupcake", "croissant", "maple"];
 
 if (part == "plate") plate();
 else if (part == "rake") rake();
 else if (part == "gallery")
 	for (i = [0:len(gallery)-1])
-		translate([(i % 5) * (disk_d + 10), -floor(i / 5) * (disk_d + 10), 0])
+		translate([(i % 6) * (disk_d + 10), -floor(i / 6) * (disk_d + 10), 0])
 			plate(gallery[i]);
 else {
 	color("Gainsboro") plate();

@@ -25,16 +25,36 @@ The pictures are all line art — strokes and outlines about 3mm wide —
 because a stroke is a long narrow opening, which is what the powder window
 wants. Anything an outline closes off is tied back to the plate by gaps.
 
-`rake_style` picks `teeth`, which break the powder up and meter it through
-a little at a time, or `flat`, a plain blade that squeegees everything
-across the stencil in one sweep. Print both and see which you reach for.
+Drawing your own
+----------------
 
-    openscad-nightly -D 'part="plate"' -o plate.stl duster.scad
-    openscad-nightly -D 'part="rake"'  -o rake.stl  duster.scad
+`croissant` and `maple` are drawn as SVG in `art/`, and `pattern` of `svg`
+cuts any file you name in `svg_file`. The rules:
 
-Needs a development snapshot with `textmetrics` enabled, as `stencil.scad`
-does — it measures the text to fit it, and each letter to space them round
-the arc.
+* Draw in mm on an 84mm square page (`width="84mm" height="84mm"
+  viewBox="0 0 84 84"`) with the disk centre at (42,42), keeping everything
+  inside an 80mm circle.
+* Draw with strokes, about 3mm wide: never under 1.5 or powder will not
+  pass, never over 8 or it pours out on its own.
+* Closed shapes are fine: the model cuts `svg_ties` gaps through the
+  artwork on radial lines from the centre, so whatever a closed stroke
+  encloses stays attached. Lines inside a shape should stop a few mm short
+  of its outline, or they fence off regions the gaps do not reach.
+* OpenSCAD imports fills only and ignores strokes, so convert first:
+
+      ./stroke2fill.py art/mine.svg      # writes art/mine.fill.svg
+
+  and point `svg_file` at the `.fill.svg`. Edit the stroked original, not
+  the generated file.
+
+Then prove it will not fall apart:
+
+    ./check.py maple          # or ./check.py, for every pattern
+
+`check.py` renders the plate and counts the pieces in the result. One piece
+is a stencil; two means an island that will drop out of the cut. It caught
+the sunburst doing exactly that: its slots overlapped at their inner ends
+and fenced off the middle of the disk.
 
 Why it is built this way
 ------------------------

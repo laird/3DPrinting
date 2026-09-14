@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="84mm" height="84mm" viewBox="0 0 84 84">
+  <!-- Stencil artwork for duster.scad. Units are mm, the disk centre is
+       at (42,42), everything inside an 80mm circle. Strokes become the openings;
+       run stroke2fill.py to make the .fill.svg the model imports.
+       The outline is drawn closed; duster.scad cuts the tie gaps. The veins
+       stop short of the outline so the lobes stay joined to each other. -->
+  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 42,7 L 47,21 55,16 52,30 75,25 66,36 73,44 56,48 60,64 46,57 44,64 44,78 40,78 40,64 38,57 24,64 28,48 11,44 18,36 9,25 32,30 29,16 37,21 Z"/>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M 42,54 L 42,11"/>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M 42,54 L 70.5,29"/>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M 42,54 L 13.5,29"/>
+</svg>
