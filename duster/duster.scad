@@ -208,9 +208,9 @@ module outline(w = slot_w) {
 
 // Start a little out from the centre so the bars' junction never lands
 // inside an opening that passes through it.
-module radial_ties(n, a0 = 0) {
+module radial_ties(n, a0 = 0, w = bridge_width) {
 	for (i = [0:n-1]) rotate(a0 + 360/n*i)
-		translate([6, -bridge_width/2]) square([art_d, bridge_width]);
+		translate([6, -w/2]) square([art_d, w]);
 	}
 
 module tied_outline(n, a0 = 0, w = slot_w) {
@@ -377,10 +377,10 @@ module art_cupcake() {
 // Artwork drawn as SVG (as filled shapes, see stroke2fill.py): any closed
 // stroke is opened up by the tie bars, which is what keeps whatever it
 // enclosed attached to the plate.
-module art_svg(file, ties, a0 = 45) {
+module art_svg(file, ties, a0 = 45, tie_w = bridge_width) {
 	difference() {
 		import(file, center=true);
-		radial_ties(ties, a0);
+		radial_ties(ties, a0, tie_w);
 		}
 	}
 
@@ -417,7 +417,7 @@ module art(name) {
 	else if (name == "smiley") art_smiley();
 	else if (name == "bean") art_bean();
 	else if (name == "cupcake") art_cupcake();
-	else if (name == "croissant") art_svg("art/croissant.fill.svg", 4, 0);
+	else if (name == "croissant") art_svg("art/croissant.fill.svg", 4, 0, 3);	// ties as heavy as its strokes
 	else if (name == "maple") art_svg("art/maple.fill.svg", 4, 22.5);
 	else if (name == "svg") art_svg(svg_file, svg_ties);
 	else art_text();

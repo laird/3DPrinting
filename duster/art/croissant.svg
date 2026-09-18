@@ -3,11 +3,11 @@
        at (42,42), everything inside an 80mm circle. Strokes become the openings;
        run stroke2fill.py to make the .fill.svg the model imports.
        The crescent is drawn closed; duster.scad cuts the tie gaps. The fold
-       lines stop 5mm short of the inner arc so the sections stay joined
-       by a strip wide enough to count as a tie. -->
+       lines stop 7mm short of the inner arc, leaving 4mm strips that join
+       the sections. -->
   <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 16,57 A 30 30 0 1 1 68,57 A 26 26 0 1 0 16,57 Z"/>
-  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 51.58,15.69 L 47.95,25.65"/>
-  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 32.42,15.69 L 36.05,25.65"/>
-  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 62.81,23.27 L 56.46,28.98"/>
-  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 21.19,23.27 L 27.54,28.98"/>
+  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 51.58,15.69 L 48.63,23.77"/>
+  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 32.42,15.69 L 35.37,23.77"/>
+  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 62.81,23.27 L 57.95,27.64"/>
+  <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M 21.19,23.27 L 26.05,27.64"/>
 </svg>
