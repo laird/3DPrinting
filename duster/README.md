@@ -62,11 +62,28 @@ cuts any file you name in `svg_file`. The rules:
 Then prove it will not fall apart:
 
     ./check.py maple          # or ./check.py, for every pattern
+    ./check.py --debug heart  # also writes a picture of what it found
 
-`check.py` renders the plate and counts the pieces in the result. One piece
-is a stencil; two means an island that will drop out of the cut. It caught
-the sunburst doing exactly that: its slots overlapped at their inner ends
-and fenced off the middle of the disk.
+`check.py` renders each plate twice and applies two rules:
+
+* **One piece.** It counts the connected pieces in the STL. Two means an
+  island that drops out of the cut. It caught the sunburst doing exactly
+  that: its slots overlapped at their inner ends and fenced off the middle
+  of the disk.
+* **At least three ties.** Any part of the plate that is only held on by
+  ties must hang on three or more. Two ties make a hinge, and if one
+  breaks the part swings free. It finds them by rendering the plate from
+  above, eroding it by 1mm so anything under 2mm wide vanishes, and then
+  seeing which thick regions are left and how many necks of at least 1.2mm
+  join each one to the others. This is what put the second bar through the
+  text, the side gaps on the heart, and the hub in the maple leaf's veins.
+
+Two lessons from getting everything through it. Lines inside an outline
+should stop where the shape is still wide enough to leave a tie on either
+side of them — a lobe or a letter is a narrowing wedge, and a line run up
+into it cuts the point off. And lines that would meet at a point should
+stop short of it instead, so the region around the junction stays one
+piece rather than being split into sectors each hanging on a gap or two.
 
 Why it is built this way
 ------------------------

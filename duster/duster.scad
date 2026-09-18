@@ -108,9 +108,10 @@ arc_len = cum(chars);
 // Bars subdividing the cutouts, spaced from max_cell so no opening is left
 // tall enough for powder to fall through unraked, and nothing is left
 // floating once the middles of the letters drop out.
+// At least two, so the middle of every letter hangs on four ties, not two.
 module line_ties() {
 	h = tm.size[1];
-	n = max(0, ceil(h / max_cell) - 1);
+	n = max(2, ceil(h / max_cell) - 1);
 	if (n > 0) for (i = [1:n])
 		translate([tm.position[0] + tm.size[0]/2,
 				tm.position[1] + i * h/(n+1)])
@@ -119,7 +120,7 @@ module line_ties() {
 
 module ring_ties() {
 	h = tm.size[1];
-	n = max(0, ceil(h / max_cell) - 1);
+	n = max(2, ceil(h / max_cell) - 1);
 	if (n > 0) for (i = [1:n]) {
 		r = arc_r - h/2 + i * h/(n+1);
 		difference() {
@@ -205,9 +206,11 @@ module outline(w = slot_w) {
 		}
 	}
 
+// Start a little out from the centre so the bars' junction never lands
+// inside an opening that passes through it.
 module radial_ties(n, a0 = 0) {
 	for (i = [0:n-1]) rotate(a0 + 360/n*i)
-		translate([0, -bridge_width/2]) square([art_d, bridge_width]);
+		translate([6, -bridge_width/2]) square([art_d, bridge_width]);
 	}
 
 module tied_outline(n, a0 = 0, w = slot_w) {
@@ -257,8 +260,8 @@ module cup_body() {
 	}
 
 module art_heart() {
-	tied_outline(2, 90) heart_shape(62);	// gaps at the notch and the tip
-	tied_outline(2, 90) heart_shape(36);
+	tied_outline(4, 0) heart_shape(62);	// gaps at notch, tip and both sides
+	tied_outline(4, 0) heart_shape(36);
 	}
 
 module art_star() {
@@ -414,8 +417,8 @@ module art(name) {
 	else if (name == "smiley") art_smiley();
 	else if (name == "bean") art_bean();
 	else if (name == "cupcake") art_cupcake();
-	else if (name == "croissant") art_svg("art/croissant.fill.svg", 2, 90);
-	else if (name == "maple") art_svg("art/maple.fill.svg", 4, 45);
+	else if (name == "croissant") art_svg("art/croissant.fill.svg", 4, 0);
+	else if (name == "maple") art_svg("art/maple.fill.svg", 4, 22.5);
 	else if (name == "svg") art_svg(svg_file, svg_ties);
 	else art_text();
 	}
