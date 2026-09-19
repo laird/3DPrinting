@@ -16,7 +16,7 @@ part = "assembly"; //[assembly,plate,rake,gallery]
 rake_style = "teeth"; //[teeth,flat]
 
 //What to cut through the disk
-pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,tulip,mandala,smiley,bean,cupcake,croissant,maple,svg]
+pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,tulip,mandala,smiley,bean,cupcake,croissant,maple,lips,cherry,peach,eggplant,boobs,butt,penis,handcuffs,kissme,svg]
 
 //Which mandala, when pattern is mandala
 mandala_style = "snowflake"; //[snowflake,flower,burst]
@@ -95,13 +95,11 @@ size = text_size > 0 ? text_size
 tm = textmetrics(message, size=size, font=font, spacing=letter_spacing,
 	halign="center", valign="center");
 
-// Per-character advances, for spacing letters around the arc by their real
+// Per-character advances, for spacing letters around an arc by their real
 // widths instead of an assumed average.
-function adv(c) = textmetrics(c, size=size, font=font,
+function adv_of(c, sz) = textmetrics(c, size=sz, font=font,
 	spacing=letter_spacing).advance[0];
-function cum(i) = i <= 0 ? 0 : cum(i-1) + adv(message[i-1]);
-chars = len(message);
-arc_len = cum(chars);
+function cum_of(msg, i, sz) = i <= 0 ? 0 : cum_of(msg, i-1, sz) + adv_of(msg[i-1], sz);
 
 // ---- artwork ---------------------------------------------------------
 
@@ -135,15 +133,18 @@ module line_text() {
 		halign="center", valign="center");
 	}
 
-// Letters set around the arc, each turned to stand upright on it.
-module arc_text() {
-	for (i = [0:chars-1]) {
-		a = (cum(i) + adv(message[i])/2 - arc_len/2) / arc_r * 180 / PI;
-		rotate(-a) translate([0, arc_r])
-			text(message[i], size=size, font=font,
-				halign="center", valign="center");
+// Letters set around an arc of radius r, each turned to stand upright on it.
+module arc_words(msg, sz, r) {
+	n = len(msg);
+	total = cum_of(msg, n, sz);
+	for (i = [0:n-1]) {
+		a = (cum_of(msg, i, sz) + adv_of(msg[i], sz)/2 - total/2) / r * 180 / PI;
+		rotate(-a) translate([0, r])
+			text(msg[i], size=sz, font=font, halign="center", valign="center");
 		}
 	}
+
+module arc_text() arc_words(message, size, arc_r);
 
 // ---- holes -----------------------------------------------------------
 // The commercial stencils are built almost entirely from small isolated
@@ -181,6 +182,9 @@ module comma(L, w, bend = 70) {
 // Crescent: t thick at the bottom, horns up, R across.
 module crescent(R, t) difference() { circle(R); translate([0, t]) circle(R); }
 
+// Straight stroke between two points, round ends.
+module stroke(a, b, w = slot_w) hull() { translate(a) circle(d=w); translate(b) circle(d=w); }
+
 // Part of a ring, from angle a1 to a2, w wide.
 module ring_arc(r, a1, a2, w = slot_w) {
 	intersection() {
@@ -208,9 +212,9 @@ module outline(w = slot_w) {
 
 // Start a little out from the centre so the bars' junction never lands
 // inside an opening that passes through it.
-module radial_ties(n, a0 = 0, w = bridge_width) {
+module radial_ties(n, a0 = 0, w = bridge_width, L = art_d) {
 	for (i = [0:n-1]) rotate(a0 + 360/n*i)
-		translate([6, -w/2]) square([art_d, w]);
+		translate([6, -w/2]) square([L, w]);
 	}
 
 module tied_outline(n, a0 = 0, w = slot_w) {
@@ -405,6 +409,84 @@ module art_text() {
 		}
 	}
 
+// ---- after dark ------------------------------------------------------
+// Cartoon icons, the way the bachelorette-party stencils draw them.
+
+module lips_shape() {
+	for (m = [0, 1]) mirror([m, 0])
+		translate([-18, 2]) rotate(12) lens(17, 6.5);	// upper lip, two lobes
+	translate([0, -1]) crescent(20, 7);					// lower lip
+	}
+
+module art_lips() lips_shape();
+
+module art_cherry() {
+	translate([-9, -12]) dot(7.5);
+	translate([9, -14]) dot(7.5);
+	stroke([-8, -6], [-1, 16], 2.5);
+	stroke([8, -8], [1, 16], 2.5);
+	translate([1, 16]) rotate(30) lens(14, 6);
+	}
+
+module art_peach() {
+	tied_outline(4, 45) { translate([-7, 0]) circle(17); translate([7, 0]) circle(17); }
+	stroke([0, 9], [0, -9], 2.5);						// the cleft, clear of the edge
+	translate([1, 14]) rotate(40) lens(13, 5.5);
+	}
+
+module art_eggplant() {
+	tied_outline(4, 45) hull() {
+		translate([-10, -22]) circle(9);
+		translate([-2, -8]) circle(8);
+		translate([4, 6]) circle(7);
+		translate([8, 18]) circle(6);
+		}
+	for (a = [-60, -20, 20, 60])						// the calyx, clear of the body
+		translate([10, 27]) rotate(90 + a) translate([2, 0]) lens(9, 4);
+	stroke([10, 27], [12, 34], 2.5);
+	}
+
+module art_boobs() {
+	for (m = [0, 1]) mirror([m, 0]) translate([16, 0]) {
+		difference() {
+			outline() circle(14);
+			radial_ties(4, 45, bridge_width, 14);		// four gaps, from its own centre
+			}
+		dot(5);
+		}
+	}
+
+module art_butt() {
+	tied_outline(4, 45) { translate([-11, -2]) circle(15); translate([11, -2]) circle(15); }
+	stroke([0, 5], [0, -5], 2.5);
+	}
+
+// The balls overlap the shaft enough that the inside is one region.
+module art_penis() {
+	difference() {
+		outline() {
+			hull() { translate([0, -8]) circle(6); translate([0, 18]) circle(5); }
+			translate([0, 22]) circle(6.5);
+			translate([-6, -10]) circle(7.5);
+			translate([6, -10]) circle(7.5);
+			}
+		radial_ties(6, 90);
+		}
+	}
+
+module art_handcuffs() {
+	for (m = [0, 1]) rotate(180*m) translate([-16, 4]) difference() {
+		outline() circle(11);
+		radial_ties(4, 22.5, bridge_width, 12);		// from its own centre, stopping short of the chain
+		}
+	for (x = [-4, 0, 4]) translate([x, -x/4]) dot(3.5);
+	}
+
+module art_kissme() {
+	translate([0, -8]) scale(0.85) lips_shape();
+	arc_words("KISS ME", 11, 30);
+	}
+
 module art(name) {
 	if (name == "sunburst") art_sunburst();
 	else if (name == "heart") art_heart();
@@ -417,6 +499,15 @@ module art(name) {
 	else if (name == "smiley") art_smiley();
 	else if (name == "bean") art_bean();
 	else if (name == "cupcake") art_cupcake();
+	else if (name == "lips") art_lips();
+	else if (name == "cherry") art_cherry();
+	else if (name == "peach") art_peach();
+	else if (name == "eggplant") art_eggplant();
+	else if (name == "boobs") art_boobs();
+	else if (name == "butt") art_butt();
+	else if (name == "penis") art_penis();
+	else if (name == "handcuffs") art_handcuffs();
+	else if (name == "kissme") art_kissme();
 	else if (name == "croissant") art_svg("art/croissant.fill.svg", 4, 0, 3);	// ties as heavy as its strokes
 	else if (name == "maple") art_svg("art/maple.fill.svg", 4, 22.5);
 	else if (name == "svg") art_svg(svg_file, svg_ties);
@@ -470,13 +561,14 @@ module rake() {
 // ---- output ----------------------------------------------------------
 
 gallery = ["text", "sunburst", "heart", "star", "cup", "snowflake", "rosetta",
-	"tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple"];
+	"tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple",
+	"lips", "cherry", "peach", "eggplant", "boobs", "butt", "penis", "handcuffs", "kissme"];
 
 if (part == "plate") plate();
 else if (part == "rake") rake();
 else if (part == "gallery")
 	for (i = [0:len(gallery)-1])
-		translate([(i % 7) * (disk_d + 10), -floor(i / 7) * (disk_d + 10), 0])
+		translate([(i % 8) * (disk_d + 10), -floor(i / 8) * (disk_d + 10), 0])
 			plate(gallery[i]);
 else {
 	color("Gainsboro") plate();
