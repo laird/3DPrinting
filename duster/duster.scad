@@ -415,10 +415,23 @@ module art_text() {
 // ---- after dark ------------------------------------------------------
 // Cartoon icons, the way the bachelorette-party stencils draw them.
 
+// Two lobes above, two below, split by the philtrum and the crease: a full
+// lower lip in one hole would be too tall to hold powder, and the crease
+// is how the cartoon draws it anyway.
 module lips_shape() {
-	for (m = [0, 1]) mirror([m, 0])
-		translate([-20.5, 2.5]) rotate(10) lens(19, 8.5);	// upper lip, two full lobes
-	translate([0, -1]) crescent(21, 7.5);					// lower lip
+	for (m = [0, 1]) mirror([m, 0]) {
+		intersection() {											// upper lobe, cut to the mouth line
+			translate([-20.5, 2.5]) rotate(10) lens(19, 9);
+			translate([0, 60]) circle(59.5, $fn=240);				// 2mm above the lower lobes' arc
+			}
+		intersection() {											// lower lobe
+			translate([0, -2]) scale([22, 7.5]) circle(1);
+			difference() {											// left of the crease, under a mouth line
+				translate([-45, -50]) square([44, 60]);				// that curves up toward the corner
+				translate([0, 60]) circle(61.5, $fn=240);
+				}
+			}
+		}
 	}
 
 module art_lips() lips_shape();
