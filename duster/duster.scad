@@ -11,6 +11,9 @@
 //Which part to draw; gallery lays out a plate of every pattern
 part = "assembly"; //[assembly,plate,rake,gallery]
 
+//Write the pattern's name under the disk, to tell renders apart
+show_label = false;
+
 //Teeth break the powder up and meter it through; a flat blade squeegees
 //everything across the stencil in one sweep
 rake_style = "teeth"; //[teeth,flat]
@@ -560,16 +563,24 @@ module rake() {
 
 // ---- output ----------------------------------------------------------
 
+// The pattern's name under the disk, when asked for.
+module labelled(name) {
+	children();
+	if (show_label)
+		translate([0, -disk_d/2 - 5, 0]) linear_extrude(disk_t)
+			text(name, size=8, font=font, halign="center", valign="top");
+	}
+
 gallery = ["text", "sunburst", "heart", "star", "cup", "snowflake", "rosetta",
 	"tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple",
 	"lips", "cherry", "peach", "eggplant", "boobs", "butt", "penis", "handcuffs", "kissme"];
 
-if (part == "plate") plate();
+if (part == "plate") labelled(pattern) plate();
 else if (part == "rake") rake();
 else if (part == "gallery")
 	for (i = [0:len(gallery)-1])
-		translate([(i % 8) * (disk_d + 10), -floor(i / 8) * (disk_d + 10), 0])
-			plate(gallery[i]);
+		translate([(i % 8) * (disk_d + 10), -floor(i / 8) * (disk_d + (show_label ? 28 : 10)), 0])
+			labelled(gallery[i]) plate(gallery[i]);
 else {
 	color("Gainsboro") plate();
 	color("IndianRed") translate([0, 0, disk_t + 0.3]) rake();
