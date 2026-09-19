@@ -518,10 +518,15 @@ module cuff() {
 		}
 	}
 
+// Hanging from the chain: the cuffs dangle below, housings pointing up
+// to a short chain that peaks in the middle.
 module art_handcuffs() {
-	translate([-22, 4]) rotate(-10) cuff();
-	translate([22, -4]) rotate(-10) mirror([1, 0]) cuff();
-	for (x = [-2.9, 2.9]) translate([x, -x*0.18]) rotate(-10) scale([1, 0.7]) dot(4.2);	// chain
+	for (m = [0, 1]) mirror([m, 0]) {
+		translate([-16, -8]) rotate(60) cuff();
+		for (t = [1/3, 2/3])								// links up the left side
+			translate([-7.8 + 7.8*t, 6.3 + 13.7*t]) rotate(60) scale([1, 0.72]) dot(3.9);
+		}
+	translate([0, 20]) scale([1, 0.7]) dot(4.4);			// the top link
 	}
 
 // The usual stylised symbol: nested almonds and a dot.
