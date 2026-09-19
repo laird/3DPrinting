@@ -503,20 +503,25 @@ module art_penis() {
 		}
 	}
 
-// Each cuff is a ring with a keyhole inside and a lock block where the
-// chain attaches; one link between them.
-module art_handcuffs() {
-	for (m = [0, 1]) translate(m ? [20, -4] : [-20, 4]) {
-		difference() {
-			outline() circle(10);
-			radial_ties(4, 45, bridge_width, 8);		// from its own centre
-			}
-		translate([0, 1]) dot(4.5);					// keyhole, upright on both
-		stroke([0, 0], [0, -4.5], 2.2);
-		rotate(m ? 169 : -11) translate([14, 0])		// lock block, toward the chain
-			square([6, 6], center=true);
+// A cuff: ring, and on its chain side the lock housing with the keyhole
+// in it. The keyhole is solid, joined to the plate through its slit, so it
+// is a peninsula in the housing's hole rather than an island.
+module cuff() {
+	difference() {
+		outline() circle(9);
+		radial_ties(4, 45, bridge_width, 7);
 		}
-	scale([1, 0.7]) dot(5);							// the link
+	difference() {
+		translate([12.5, 0]) square([8, 10], center=true);	// housing, merging into the ring
+		translate([12.8, 0.8]) circle(d=3.8);				// keyhole
+		translate([11.8, -6]) square([2, 6.8]);				// its slit, out through the edge
+		}
+	}
+
+module art_handcuffs() {
+	translate([-22, 4]) rotate(-10) cuff();
+	translate([22, -4]) rotate(-10) mirror([1, 0]) cuff();
+	for (x = [-2.9, 2.9]) translate([x, -x*0.18]) rotate(-10) scale([1, 0.7]) dot(4.2);	// chain
 	}
 
 // The usual stylised symbol: nested almonds and a dot.
