@@ -417,8 +417,8 @@ module art_text() {
 
 module lips_shape() {
 	for (m = [0, 1]) mirror([m, 0])
-		translate([-18, 2]) rotate(12) lens(17, 6.5);	// upper lip, two lobes
-	translate([0, -1]) crescent(20, 7);					// lower lip
+		translate([-20.5, 2.5]) rotate(10) lens(19, 8.5);	// upper lip, two full lobes
+	translate([0, -1]) crescent(21, 7.5);					// lower lip
 	}
 
 module art_lips() lips_shape();
@@ -459,9 +459,15 @@ module art_boobs() {
 		}
 	}
 
+// Cheeks below a waist, so it does not read as the peach.
 module art_butt() {
-	tied_outline(4, 45) { translate([-11, -2]) circle(15); translate([11, -2]) circle(15); }
-	stroke([0, 5], [0, -5], 2.5);
+	difference() {
+		outline() { translate([-12, -8]) circle(15); translate([12, -8]) circle(15); }
+		for (m = [0, 1]) mirror([m, 0]) translate([12, -8])
+			radial_ties(4, 45, bridge_width, 13);		// each cheek tied from its own centre
+		}
+	stroke([0, -3], [0, -12], 2.5);
+	for (m = [0, 1]) mirror([m, 0]) stroke([26, 3], [15, 23]);	// hips, clear of the cheeks
 	}
 
 // The balls overlap the shaft enough that the inside is one region.
