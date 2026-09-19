@@ -436,12 +436,19 @@ module lips_shape() {
 
 module art_lips() lips_shape();
 
+// Big cherries as tied outlines (a solid hole this size would leak), each
+// with a highlight, on stems that meet under a leaf.
 module art_cherry() {
-	translate([-9, -12]) dot(7.5);
-	translate([9, -14]) dot(7.5);
-	stroke([-8, -6], [-1, 16], 2.5);
-	stroke([8, -8], [1, 16], 2.5);
-	translate([1, 16]) rotate(30) lens(14, 6);
+	for (c = [[-14, -12], [14, -17]]) translate(c) {
+		difference() {
+			outline() circle(11);
+			radial_ties(4, 45, bridge_width, 10);
+			}
+		translate([-4, 4]) dot(4);
+		}
+	stroke([-14, -1], [-2, 20], 2.5);
+	stroke([14, -6], [2, 20], 2.5);
+	translate([1, 19]) rotate(35) lens(18, 8);
 	}
 
 module art_peach() {
