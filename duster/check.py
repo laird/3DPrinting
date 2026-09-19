@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SCAD = os.path.join(HERE, "duster.scad")
 PATTERNS = ["text", "sunburst", "heart", "star", "cup", "snowflake", "rosetta",
             "tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple",
-            "lips", "cherry", "peach", "eggplant", "boobs", "butt", "penis", "handcuffs", "kissme"]
+            "lips", "cherry", "peach", "eggplant", "boobs", "butt", "penis", "vagina", "handcuffs", "kissme"]
 MIN_TIES = 3
 TIE_MM = 1.0        # erode this far: features under twice it count as ties
 MIN_TIE_MM = 1.2    # a tie thinner than this is a sliver, not a tie

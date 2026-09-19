@@ -19,7 +19,7 @@ show_label = false;
 rake_style = "teeth"; //[teeth,flat]
 
 //What to cut through the disk
-pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,tulip,mandala,smiley,bean,cupcake,croissant,maple,lips,cherry,peach,eggplant,boobs,butt,penis,handcuffs,kissme,svg]
+pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,tulip,mandala,smiley,bean,cupcake,croissant,maple,lips,cherry,peach,eggplant,boobs,butt,penis,vagina,handcuffs,kissme,svg]
 
 //Which mandala, when pattern is mandala
 mandala_style = "snowflake"; //[snowflake,flower,burst]
@@ -503,12 +503,32 @@ module art_penis() {
 		}
 	}
 
+// Each cuff is a ring with a keyhole inside and a lock block where the
+// chain attaches; one link between them.
 module art_handcuffs() {
-	for (m = [0, 1]) rotate(180*m) translate([-16, 4]) difference() {
-		outline() circle(11);
-		radial_ties(4, 22.5, bridge_width, 12);		// from its own centre, stopping short of the chain
+	for (m = [0, 1]) translate(m ? [20, -4] : [-20, 4]) {
+		difference() {
+			outline() circle(10);
+			radial_ties(4, 45, bridge_width, 8);		// from its own centre
+			}
+		translate([0, 1]) dot(4.5);					// keyhole, upright on both
+		stroke([0, 0], [0, -4.5], 2.2);
+		rotate(m ? 169 : -11) translate([14, 0])		// lock block, toward the chain
+			square([6, 6], center=true);
 		}
-	for (x = [-4, 0, 4]) translate([x, -x/4]) dot(3.5);
+	scale([1, 0.7]) dot(5);							// the link
+	}
+
+// The usual stylised symbol: nested almonds and a dot.
+module art_vagina() {
+	difference() {
+		outline() rotate(90) translate([-28, 0]) lens(56, 30);
+		radial_ties(4, 0);
+		}
+	translate([0, -4]) rotate(90) translate([-15, 0]) lens(30, 7);
+	translate([0, 16]) dot(5);
+	for (m = [0, 1]) mirror([m, 0])
+		translate([-6, 12]) rotate(-90) comma(26, 3.5, 20);
 	}
 
 module art_kissme() {
@@ -536,6 +556,7 @@ module art(name) {
 	else if (name == "butt") art_butt();
 	else if (name == "penis") art_penis();
 	else if (name == "handcuffs") art_handcuffs();
+	else if (name == "vagina") art_vagina();
 	else if (name == "kissme") art_kissme();
 	else if (name == "croissant") art_svg("art/croissant.fill.svg", 4, 0, 3);	// ties as heavy as its strokes
 	else if (name == "maple") art_svg("art/maple.fill.svg", 4, 22.5);
@@ -599,7 +620,7 @@ module labelled(name) {
 
 gallery = ["text", "sunburst", "heart", "star", "cup", "snowflake", "rosetta",
 	"tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple",
-	"lips", "cherry", "peach", "eggplant", "boobs", "butt", "penis", "handcuffs", "kissme"];
+	"lips", "cherry", "peach", "eggplant", "boobs", "butt", "penis", "vagina", "handcuffs", "kissme"];
 
 if (part == "plate") labelled(pattern) plate();
 else if (part == "rake") rake();

@@ -24,7 +24,7 @@ of the pictures: `sunburst`, `heart`, `star`, `cup`, `snowflake`,
 `gallery` draws them all.
 
 After dark, drawn the way the bachelorette-party stencils draw them:
-`lips`, `cherry`, `peach`, `eggplant`, `boobs`, `butt`, `penis`,
+`lips`, `cherry`, `peach`, `eggplant`, `boobs`, `butt`, `penis`, `vagina`,
 `handcuffs`, and `kissme` (lips under KISS ME on an arc). For words on
 their own, `message` takes anything — SEXY, XOXO, NAUGHTY, OH YES, 69 —
 and `layout` of `arc` wraps it round the disk.
