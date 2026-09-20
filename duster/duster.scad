@@ -19,7 +19,7 @@ show_label = false;
 rake_style = "teeth"; //[teeth,flat]
 
 //What to cut through the disk
-pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,tulip,mandala,smiley,bean,cupcake,croissant,maple,lips,cherry,peach,eggplant,boobs,butt,penis,vagina,handcuffs,kissme,padlock,bra,stiletto,champagne,flames,svg]
+pattern = "text"; //[text,sunburst,heart,star,cup,snowflake,rosetta,tulip,mandala,smiley,bean,cupcake,croissant,maple,lips,cherry,peach,eggplant,boobs,butt,penis,vagina,handcuffs,kissme,padlock,bra,stiletto,champagne,flames,xxx,svg]
 
 //Which mandala, when pattern is mandala
 mandala_style = "snowflake"; //[snowflake,flower,burst]
@@ -571,21 +571,23 @@ module art_bra() {
 	stroke([-1.5, 4], [1.5, 4]);					// gore
 	}
 
-// Stiletto in profile, pointing left: pointed toe, the vamp rising to a
-// low throat, a topline running back to a tall counter, the sole arching
-// up to the heel seat, and a spike heel under it.
+// Stiletto in profile, pointing left, with the proportions of the usual
+// icon: a long low pointed toe, the vamp climbing to the throat, a topline
+// running back to a tall counter, the sole rising in a deep arch to a high
+// heel seat, and a long thin heel dropping from the seat to toe level.
 module shoe_body() {
 	offset(r=2) offset(r=-2) polygon([
-		[-34, -14], [-14, -13], [0, -6], [12, 3], [18, 6], [21, 12],
-		[22, 24], [14, 20], [2, 12], [-12, 2], [-22, -7]]);
+		[-31, -20], [-20, -21], [-8, -18], [2, -11], [10, -5], [18, -1], [28, 1],
+		[29, 12], [26, 21], [23, 17], [21, 11], [18, 7], [12, 4], [6, 2], [0, 2],
+		[-6, -2], [-13, -8], [-22, -15]]);
 	}
 
 module art_stiletto() {
 	difference() {
 		outline() shoe_body();
-		translate([-4, 0]) radial_ties(4, 80);			// square across the pitched body
+		translate([-3, -6]) radial_ties(6, 20);			// six, so four land where the body is thick
 		}
-	stroke([16, 4], [23, -16], 4);						// the heel, down to toe level
+	stroke([25, 0], [29, -21], 4);						// the heel
 	}
 
 // A champagne flute: bowl open at the top, stem, foot, bubbles.
@@ -620,6 +622,13 @@ module art_flames() {
 	translate([0, -15]) rotate(90) comma(22, 8, 22);		// inner flame, one tongue
 	}
 
+// XXX, as big as fits. X has no middle to hold in, so no ties, no outline.
+module art_xxx() {
+	m0 = textmetrics("XXX", size=10, font=font, spacing=1.05, halign="center", valign="center");
+	text("XXX", size=10 * 0.9 * art_d / m0.size[0], font=font, spacing=1.05,
+		halign="center", valign="center");
+	}
+
 module art_kissme() {
 	translate([0, -8]) scale(0.85) lips_shape();
 	arc_words("KISS ME", 11, 30);
@@ -652,6 +661,7 @@ module art(name) {
 	else if (name == "stiletto") art_stiletto();
 	else if (name == "champagne") art_champagne();
 	else if (name == "flames") art_flames();
+	else if (name == "xxx") art_xxx();
 	else if (name == "croissant") art_svg("art/croissant.fill.svg", 4, 0, 3);	// ties as heavy as its strokes
 	else if (name == "maple") art_svg("art/maple.fill.svg", 4, 22.5);
 	else if (name == "svg") art_svg(svg_file, svg_ties);
@@ -715,7 +725,7 @@ module labelled(name) {
 gallery = ["text", "sunburst", "heart", "star", "cup", "snowflake", "rosetta",
 	"tulip", "mandala", "smiley", "bean", "cupcake", "croissant", "maple",
 	"lips", "cherry", "peach", "eggplant", "boobs", "butt", "penis", "vagina", "handcuffs", "kissme",
-	"padlock", "bra", "stiletto", "champagne", "flames"];
+	"padlock", "bra", "stiletto", "champagne", "flames", "xxx"];
 
 if (part == "plate") labelled(pattern) plate();
 else if (part == "rake") rake();
