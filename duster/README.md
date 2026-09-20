@@ -11,6 +11,9 @@ the rake a couple of turns by its knob, lift it off.
 Printing
 --------
 
+`stl/` has every plate and both rakes already exported, and `gallery.png`
+shows them all by name. To change anything, edit `duster.scad`:
+
 Set `part` to `plate` or `rake` and export each, no supports. The rake
 prints as drawn: its teeth stand on the bed and the arms bridge the short
 gaps between them. It is loose in use — nothing holds it but the rim, which
