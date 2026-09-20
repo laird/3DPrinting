@@ -587,7 +587,7 @@ module art_stiletto() {
 		outline() shoe_body();
 		translate([-3, -6]) radial_ties(6, 20);			// six, so four land where the body is thick
 		}
-	stroke([25, 0], [29, -21], 4);						// the heel
+	stroke([26, 0], [26, -21], 4);						// the heel, straight down
 	}
 
 // A champagne flute: bowl open at the top, stem, foot, bubbles.
