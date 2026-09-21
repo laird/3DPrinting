@@ -35,7 +35,7 @@ svg_ties = 4;
 //Disk diameter, sized to sit on a mug rim (mm)
 disk_d = 100;
 //Disk thickness (mm)
-disk_t = 1.5;
+disk_t = 1.0;
 //Wall around the edge that keeps the cinnamon in (mm)
 rim_h = 10;
 //Wall thickness (mm)
